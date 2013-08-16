@@ -1,3 +1,2 @@
 // Lines with those Slashes will be ignored.
-STEAM_0:1:43061132
-STEAM_0:0:54158849
+STEAM_0:0:00000000

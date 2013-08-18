@@ -377,15 +377,29 @@ def showmenu():
 def showmenu_selection(userid,choice,popupname):
     userid = str(userid)
     steamid = es.getplayersteamid(userid)
+    #grabbing our menu's
     showmenu_msg = langlib.Strings(es.getAddonPath("superhero/languages/showmenu_msg.ini"))
     global popup_language
+    # fetch the data from our player
     pid, plevel, punspent, pheroes, ppower1, ppower2, ppower3 = cursor.execute('SELECT id, level, unspent, heroes, power1, power2, power3 FROM users WHERE id=?', (steamid,)).fetchone()
+    #if the user has unspent points
     if int(punspent) != 0:
+        #create the hero text for choosing a hero
         text = langlib.Strings(es.getAddonPath("superhero/heroes/"+choice+ "/strings.ini"))
+        #from here
         req_level = int(text('req_level'))
         level = int(plevel)
         powerx = '0'
         powers = 0
+        heroes = pheroes
+        heroes = heroes.split(',')
+        heroes.append(choice)
+        string = heroes[0]
+        for hero in heroes:
+            if not hero in string:
+                string = string+','+str(hero)
+        #to here is ok
+        #now this is the part which must be worked on. use sqlite browser to see how the data is inserted after picking a hero
         if int(text('power')) == 1:
             if str(ppower3) != '0':
                 powers += 1
@@ -398,24 +412,20 @@ def showmenu_selection(userid,choice,popupname):
             if str(ppower1) != '0':
                 powers += 1
             else:
+                cursor.execute('UPDATE users SET power1=? WHERE id=?', (string, getID(userid)))
                 powerx = 'power1'
             if powers == 3:
                 es.tell(userid,'#multi',showmenu_msg('showmenu_allpowers',lang=str(popup_language)))
                 return
+        #everything below this comment seems to be fine
         if req_level <= level:
-            heroes = pheroes
-            heroes = heroes.split(',')
-            heroes.append(choice)
-            string = heroes[0]
-            for hero in heroes:
-                if not hero in string:
-                    string = string+','+str(hero)
             cursor.execute('UPDATE users SET heroes=?, unspent=(unspent - 1) WHERE id=?', (string, getID(userid)))
             pid, punspent, pheroes = cursor.execute('SELECT id, unspent, heroes FROM users WHERE id=?', (steamid,)).fetchone()
             #Users[userid][powerx] = choice # Might have to add powerx to DB
             tokens = {}
             tokens['choice'] = choice
             es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
+            #this is creating our tokens for choosing heroes with powers.
             if powerx != '0':
                 tokens = {}
                 tokens['powerx'] = '+'+powerx

@@ -51,20 +51,25 @@ def player_hurt(ev):
     global gusers #General users
     userid = ev['userid']
     attacker = ev['attacker']
-    if es.getplayersteamid(attacker) == 'BOT':
+    steamid = ev['es_steamid']
+    if steamid == 'BOT':
         return
     damage = int(ev['dmg_health'])
     weapon = ev['weapon']
     if userid != attacker:
-        if weapon != 'point_hurt':
-            if weapon:
-                if 'Gensupport' in gusers[attacker]:
-                    if gusers[attacker]['Gensupport']:
-                        rand = random.randint(1,3)*gusers[attacker]['Gensupport']
-                        es.server.queuecmd('damage %s %i 1024 %s' % (userid,rand,attacker))
+        if superhero.hasHero(attacker,'General'):
+            if weapon != 'point_hurt':
+                if weapon:
+                    if 'Gensupport' in gusers[attacker]:
+                        if gusers[attacker]['Gensupport']:
+                            rand = random.randint(1,3)*gusers[attacker]['Gensupport']
+                            es.server.queuecmd('damage %s %i 1024 %s' % (userid,rand,attacker))
             
 def GeneralHelp(userid):
     team = es.getplayerteam(userid)
+    steamid = es.getplayersteamid(userid)
+    if steamid == 'BOT':
+        return
     global gct #T General count
     global gcct #CT General count 
     global gusers #General users

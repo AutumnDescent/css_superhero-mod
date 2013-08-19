@@ -62,13 +62,10 @@ def player_blind(ev):
     userid = ev['userid']
     if superhero.hasHero(userid,'Jubilee'):
         global gusers
-        gusers[userid] = {}
-        if not 'jub_protect' in gusers[userid]:
-            gusers[userid]['jub_protect'] = 0
-        elif gusers[userid]['jub_protect'] == 1:
-	    es.setplayerprop(userid, 'CCSPlayer.m_flFlashMaxAlpha', 0)
-	    es.setplayerprop(userid, 'CCSPlayer.m_flFlashDuration', 0)
-
+        if gusers[userid]['jub_protect'] == 1:
+            es.setplayerprop(userid,'CCSPlayer.m_flFlashMaxAlpha',0)
+	    es.setplayerprop(userid,'CCSPlayer.m_flFlashDuration',0)
+            es.tell(userid, '#multi', '#greentest')
         
 def Unblind(userid):
     global gusers

@@ -1,4 +1,4 @@
-﻿import es
+import es
 import playerlib
 import popuplib
 import psyco
@@ -80,7 +80,7 @@ def player_manage_selection(userid,choice,popup):
             es.server.queuecmd('es_xsexec %s say /showxp' % uid)
             
         if choice == 'give_level':
-            cursor.execute('UPDATE users SET level=(level + 1), unspent=(unspent + 1), xp=\'0\' WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
+            cursor.execute('UPDATE users SET level=(level + 1) WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
             es.playsound(uid, 'ambient/tones/elev1.wav', 1.0)
             es.tell(uid,'#multi',admin_msg('admin_granted',lang=popup_language))
             es.server.queuecmd('es_xsexec %s say /showxp' % uid)

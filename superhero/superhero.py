@@ -188,10 +188,14 @@ def player_spawn(ev):
         spawn_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/spawn_msg.ini')
         global popup_language
         pid, plevel = cursor.execute('SELECT id, level FROM users WHERE id=?', (steamid,)).fetchone()
+        if pid != steamid:
+            return
         es.tell(userid,'#multi',spawn_msg('spawn_cmdlist',lang=str(popup_language)))
         showxp(userid, None)
         es.tell(userid,'#multi',spawn_msg('spawn_latest',lang=str(popup_language)))
         if int(es.ServerVar('start_level')) > 0:
+            if pid != steamid:
+                return
             if int(plevel) == 0:
                 es.tell(userid,'#multi',spawn_msg('spawn_startlevel',lang=str(popup_language)))
                 sh_levelup(userid,int(es.ServerVar('start_level')))

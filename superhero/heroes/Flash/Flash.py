@@ -14,7 +14,5 @@ def player_spawn(ev):
     if not playerlib.getPlayer(userid).isdead:
         if superhero.hasHero(userid,'Flash'):
             player.set("speed", 1.5)
-            superhero.Users[userid]['speed'] = 1.5
         else:
-            if userid in superhero.Users:
-                superhero.Users[userid]['speed'] = 1.0
+            return

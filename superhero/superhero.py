@@ -6,8 +6,6 @@
 # Visit http://forums.eventscripts.com   #
 # for the latest mod                     #
 #                                        #
-# Date created: 11.27.2012               #
-# First release: 03.07.2012              #
 # Latest Version: 0.3.5.4                #
 ##########################################
 import os

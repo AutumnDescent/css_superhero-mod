@@ -65,6 +65,7 @@ cursor.execute(
     "power1 TEXT DEFAULT '0',"
     "power2 TEXT DEFAULT '0',"
     "power3 TEXT DEFAULT '0',"
+    "powerx TEXT DEFAULT '0',"
     'connected INTEGER DEFAULT "0")')
 
 def load():
@@ -377,16 +378,11 @@ def showmenu():
 def showmenu_selection(userid,choice,popupname):
     userid = str(userid)
     steamid = es.getplayersteamid(userid)
-    #grabbing our menu's
     showmenu_msg = langlib.Strings(es.getAddonPath("superhero/languages/showmenu_msg.ini"))
     global popup_language
-    # fetch the data from our player
     pid, plevel, punspent, pheroes, ppower1, ppower2, ppower3 = cursor.execute('SELECT id, level, unspent, heroes, power1, power2, power3 FROM users WHERE id=?', (steamid,)).fetchone()
-    #if the user has unspent points
     if int(punspent) != 0:
-        #create the hero text for choosing a hero
         text = langlib.Strings(es.getAddonPath("superhero/heroes/"+choice+ "/strings.ini"))
-        #from here
         req_level = int(text('req_level'))
         level = int(plevel)
         powerx = '0'
@@ -398,37 +394,32 @@ def showmenu_selection(userid,choice,popupname):
         for hero in heroes:
             if not hero in string:
                 string = string+','+str(hero)
-        #to here is ok
-        #now this is the part which must be worked on. use sqlite browser to see how the data is inserted after picking a hero
         if int(text('power')) == 1:
-            if str(ppower3) != '0':
-                powers += 1
-            else:
-                powerx = 'power3'
-            if str(ppower2) != '0':
-                powers += 1
-            else:
-                powerx = 'power2'
-            if str(ppower1) != '0':
-                powers += 1
-            else:
-                cursor.execute('UPDATE users SET power1=? WHERE id=?', (string, getID(userid)))
-                powerx = 'power1'
-            if powers == 3:
-                es.tell(userid,'#multi',showmenu_msg('showmenu_allpowers',lang=str(popup_language)))
-                return
-        #everything below this comment seems to be fine
+            for i in range(1,4):
+                if i == 1:
+                    if ppower1 == '0':
+                        cursor.execute('UPDATE users SET power1=?, powerx=\'power1\' WHERE id=?', (choice, getID(userid)))
+                        break
+                elif i == 2:
+                    if ppower2 == '0':
+                        cursor.execute('UPDATE users SET power2=?, powerx=\'power2\' WHERE id=?', (choice, getID(userid)))
+                        break
+                elif i == 3:
+                    if ppower3 == '0':
+                        cursor.execute('UPDATE users SET power3=?, powerx=\'power3\' WHERE id=?', (choice, getID(userid)))
+                        break
+                    else:
+                        es.tell(userid,'#multi',showmenu_msg('showmenu_allpowers',lang=str(popup_language)))
+                        return
         if req_level <= level:
             cursor.execute('UPDATE users SET heroes=?, unspent=(unspent - 1) WHERE id=?', (string, getID(userid)))
-            pid, punspent, pheroes = cursor.execute('SELECT id, unspent, heroes FROM users WHERE id=?', (steamid,)).fetchone()
-            #Users[userid][powerx] = choice # Might have to add powerx to DB
+            pid, punspent, pheroes, ppowerx = cursor.execute('SELECT id, unspent, heroes, powerx FROM users WHERE id=?', (steamid,)).fetchone()
             tokens = {}
             tokens['choice'] = choice
             es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
-            #this is creating our tokens for choosing heroes with powers.
-            if powerx != '0':
+            if ppowerx != '0':
                 tokens = {}
-                tokens['powerx'] = '+'+powerx
+                tokens['powerx'] = '+'+ppowerx
                 es.tell(userid,showmenu_msg('showmenu_bind',tokens,lang=str(popup_language)))
             if int(punspent) > 0:
                 showmenu()
@@ -558,7 +549,7 @@ def clearpowers():
             if ppower3 == hero:
                 cursor.execute('UPDATE users SET power3=\'0\' WHERE id=?', (steamid,))
             counter += 1
-    cursor.execute('UPDATE users SET heroes=\'0\' WHERE id=?', (steamid,))
+    cursor.execute('UPDATE users SET heroes=\'0\', powerx=\'0\' WHERE id=?', (steamid,))
     other_msg = langlib.Strings(es.getAddonPath("superhero") + "/languages/other_msg.ini")
     tokens = {}
     tokens['counter'] = counter
@@ -569,20 +560,34 @@ def power(userid, args):
     powerx = powerx.split('+')
     powerx = str(powerx[1])
     userid = str(es.getcmduserid())
-    if userid in users:
-        users[userid]['powerx'] = powerx
-        if str(users[userid][powerx]) != '0':
-            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(users[userid][powerx])+'/power')
+    steamid = es.getplayersteamid(userid)
+    if powerx == "power1":
+        pid, ppowerx = cursor.execute('SELECT id, power1 FROM users WHERE id=?', (steamid,)).fetchone()
+    elif powerx == "power2":
+        pid, ppowerx = cursor.execute('SELECT id, power2 FROM users WHERE id=?', (steamid,)).fetchone()
+    elif powerx == "power3":
+        pid, ppowerx = cursor.execute('SELECT id, power3 FROM users WHERE id=?', (steamid,)).fetchone()
+    if pid == steamid:
+        cursor.execute('UPDATE users SET powerx=? WHERE id=?', (powerx, steamid))
+        if str(ppowerx) != '0':
+            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(ppowerx)+'/power')
 
 def poweroff(userid, args):
     powerx = str(es.getargv(0))
     powerx = powerx.split('-')
     powerx = str(powerx[1])
     userid = str(es.getcmduserid())
-    if userid in users:
-        users[userid]['powerx'] = powerx
-        if str(users[userid][powerx]) != '0':
-            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(users[userid][powerx])+'/poweroff')
+    steamid = es.getplayersteamid(userid)
+    if powerx == "power1":
+        pid, ppowerx = cursor.execute('SELECT id, power1 FROM users WHERE id=?', (steamid,)).fetchone()
+    elif powerx == "power2":
+        pid, ppowerx = cursor.execute('SELECT id, power2 FROM users WHERE id=?', (steamid,)).fetchone()
+    elif powerx == "power3":
+        pid, ppowerx = cursor.execute('SELECT id, power3 FROM users WHERE id=?', (steamid,)).fetchone()
+    if pid == steamid:
+        cursor.execute('UPDATE users SET powerx=? WHERE id=?', (powerx, steamid))
+        if str(ppowerx) != '0':
+            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(ppowerx)+'/poweroff')
                                      
 def round_start(ev):
     global roundend

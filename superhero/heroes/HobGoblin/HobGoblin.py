@@ -33,7 +33,7 @@ def player_spawn(ev):
             check_nade()
     
 def check_nade():
-    for userid in superhero.Users:
+    for userid in es.getUseridList():
         rand = random.randint(5,15)
         if not es.exists('userid',userid):
             return

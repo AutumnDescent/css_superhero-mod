@@ -9,10 +9,9 @@ def load():
 def weapon_fire(ev):
     userid = ev['userid']
     if superhero.hasHero(userid,'Punisher'):
-        if not playerlib.getPlayer(userid).isdead:
-            player = playerlib.getPlayer(userid)
-            weapon = weaponlib.getWeapon(ev['weapon'])
-            ammo = int(player.getClip(ev['weapon']))
-            clip = weapon['clip']
-            if ammo == 0:
-                player.setClip(ev['weapon'],clip)
+        player = playerlib.getPlayer(userid)
+        weapon = weaponlib.getWeapon(ev['weapon'])
+        ammo = int(player.getClip(ev['weapon']))
+        clip = weapon['clip']
+        if ammo == 0:
+            player.setClip(ev['weapon'],clip)

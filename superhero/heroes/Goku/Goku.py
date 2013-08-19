@@ -28,7 +28,7 @@ def player_spawn(ev):
         gusers[userid]['RegenKI'] = 1
         gusers[userid]['GokuJump'] = 1.0
         player.armor = 100
-        KI_regen(userid)
+        KI_regen()
         
 def player_death(ev):
     global gusers
@@ -86,15 +86,15 @@ def power():
                 gamethread.delayed(10, endmessage, userid)
         else: gusers[userid]['LVL'] = 0
 
-def KI_regen(userid):
+def KI_regen():
+    global gusers
     for userid in es.getUseridList():
         if not es.exists('userid',userid):
             return
-        global gusers
         if superhero.hasHero(userid, 'Goku'): 
             player = playerlib.getPlayer(userid)
             if int(player.isdead) != 1:
-                gusers[userid] = {}            
+                gusers[userid] = {}          
                 if player.armor < 450:
                     player.armor = player.armor + 5
                 if player.armor < 150:
@@ -112,10 +112,7 @@ def KI_regen(userid):
                 elif player.armor > 375:
                     hsay(userid, 'Your LVL is 4!\nKI = %i'%player.armor)
                     gusers[userid]['LVL'] = 4
-                if 'RegenKI' in gusers[userid]:
-                    if gusers[userid]['RegenKI'] == 1:
-                        gamethread.delayedname(1, KI_regen, KI_regen)
-                else: gusers[userid]['RegenKI'] = 0
+            gamethread.delayedname(1, KI_regen, KI_regen)
                                                 
 def hsay(userid, text):
     es.usermsg("create", "hudhint", "HintText")

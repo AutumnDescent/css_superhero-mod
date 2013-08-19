@@ -1,10 +1,11 @@
-﻿import es
+import es
 import gamethread
+import playerlib
 from playerlib import getPlayer, UseridError
 from effectlib import drawBox
 superhero = es.import_addon('superhero')
 delayname = 'sh_ironman_%s'
-FUEL_REGEN_DELAY = 0.75
+FUEL_REGEN_DELAY = 0.5
 
 def load():
     es.dbgmsg(0, "[SH] Iron Man successfully loaded")
@@ -20,7 +21,7 @@ def es_map_start(ev):
 def player_spawn(ev):
     userid = ev['userid']
     if superhero.hasHero(userid, 'Iron Man'):
-        fuel_regen(getPlayer(userid))
+        fuel_regen(userid)
 
 def round_end(ev):
     gamethread.cancelDelayed(delayname % ev['userid'])
@@ -62,9 +63,11 @@ def IronManLoop(player):
     es.emitsound('player', player, 'ambient/explosions/exp4.wav', 0.3, 0.4)
     gamethread.delayedname(0.1, delayname % player, IronManLoop, player)
 
-def fuel_regen(player):
-    value = player.armor = min(player.armor + 1, 150)
-    if not es.exists('player',player):
+def fuel_regen(userid):
+    userid = str(userid)
+    player = playerlib.getPlayer(userid)
+    value = player.armor = (player.armor + 1) #min(player.armor + 1, 150)
+    if not es.exists('userid',userid):
         return
     if int(player.isdead) != 1:
         if value < 150:

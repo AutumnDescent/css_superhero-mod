@@ -22,10 +22,7 @@ def player_spawn(ev):
     if superhero.hasHero(userid,'Goku'):
         gamethread.cancelDelayed(KI_regen)
         player = playerlib.getPlayer(userid)
-        gusers[userid] = {}
-        gusers[userid]['LVL'] = 0
-        gusers[userid]['RegenKI'] = 1
-        gusers[userid]['GokuJump'] = 1.0
+        #gusers[userid]['LVL'] = 0
         player.armor = 100
         KI_regen(userid)
 
@@ -33,14 +30,13 @@ def player_death(ev):
     global gusers
     userid = ev['userid']
     if superhero.hasHero(userid,'Goku'):
-        gusers[userid]['RegenKI'] = 0
+        gamethread.cancelDelayed(KI_regen)
 
 def round_end(ev):
     global gusers
     userid = ev['userid']
     if superhero.hasHero(userid,'Goku'):
         gamethread.cancelDelayed(KI_regen)
-        gusers[userid]['RegenKI'] = 0
         
 def power():
     userid = str(es.getcmduserid())
@@ -90,7 +86,9 @@ def KI_regen(userid):
     userid = str(userid)
     if superhero.hasHero(userid, 'Goku'): 
         player = playerlib.getPlayer(userid)
-        if int(player.isdead) != 1:          
+        if int(player.isdead) != 1:
+            gusers[userid] = {}
+            gusers[userid]['GokuJump'] = 1.0
             if player.armor < 450:
                 player.armor = player.armor + 5
             if player.armor < 150:

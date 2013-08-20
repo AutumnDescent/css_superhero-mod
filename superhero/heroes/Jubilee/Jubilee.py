@@ -14,7 +14,6 @@ def unload():
     gamethread.cancelDelayed("Unblind")
             
 def power():
-    global gusers
     userid = str(es.getcmduserid())
     player = playerlib.getPlayer(userid)
     if int(player.isdead) != 1:
@@ -46,13 +45,11 @@ def fade(users, type, fadetime, totaltime, r, g, b, a):
 def player_blind(ev):
     userid = ev['userid']
     if superhero.hasHero(userid,'Jubilee'):
-        global gusers
         if jub[userid] == 1:
             es.setplayerprop(userid,'CCSPlayer.m_flFlashMaxAlpha',0)
 	    es.setplayerprop(userid,'CCSPlayer.m_flFlashDuration',0)
         
 def Unblind(userid):
-    global gusers
     userid = str(userid)
     jub[userid] = 0
     es.tell(userid, '#multi', '#green[SH]#lightgreen Jubilee protection has ended, now you are vulnerable to flashes')

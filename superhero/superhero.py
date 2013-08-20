@@ -419,6 +419,7 @@ def showmenu_selection(userid,choice,popupname):
             es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
             if int(punspent) > 0:
                 showmenu()
+            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(choice)+'/selected') #RYANS MOD
             connection.commit()
             return
         if req_level <= level:

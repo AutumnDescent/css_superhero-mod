@@ -410,20 +410,21 @@ def showmenu_selection(userid,choice,popupname):
                         es.tell(userid,'#multi',showmenu_msg('showmenu_allpowers',lang=str(popup_language)))
                         return
         else:
-                cursor.execute('UPDATE users SET heroes=?, unspent=(unspent - 1) WHERE id=?', (string, getID(userid)))
-                pid, punspent, pheroes, ppowerx = cursor.execute('SELECT id, unspent, heroes, powerx FROM users WHERE id=?', (steamid,)).fetchone()
-                tokens = {}
-                tokens['choice'] = choice
-                es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
-                if int(punspent) > 0:
-                    showmenu()
-                return
+            cursor.execute('UPDATE users SET heroes=?, unspent=(unspent - 1) WHERE id=?', (string, getID(userid)))
+            pid, punspent, pheroes, ppowerx = cursor.execute('SELECT id, unspent, heroes, powerx FROM users WHERE id=?', (steamid,)).fetchone()
+            tokens = {}
+            tokens['choice'] = choice
+            es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
+            if int(punspent) > 0:
+                showmenu()
+            return
         if req_level <= level:
             cursor.execute('UPDATE users SET heroes=?, unspent=(unspent - 1) WHERE id=?', (string, getID(userid)))
             pid, punspent, pheroes, ppowerx = cursor.execute('SELECT id, unspent, heroes, powerx FROM users WHERE id=?', (steamid,)).fetchone()
             tokens = {}
             tokens['choice'] = choice
             es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
+            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(choice)+'/selected') #RYANS MOD
             if ppowerx != '0':
                 tokens = {}
                 tokens['powerx'] = '+'+ppowerx

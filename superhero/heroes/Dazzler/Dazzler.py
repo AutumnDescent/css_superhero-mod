@@ -23,8 +23,6 @@ def power():
         return
     player = playerlib.getPlayer(userid)
     if int(player.isdead) != 1:
-        if not 'dazzle' in gusers[userid]:
-            gusers[userid]['dazzle'] = int(time.time()) + 15
         if int(time.time()) >= int(gusers[userid]['dazzle']):
             nearPlayers = player.getNearPlayers(750)
             counter = 0

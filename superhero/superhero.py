@@ -289,10 +289,8 @@ def sh_givexp(userid,amount,reason):
             # The player is above max xp
             cursor.execute('UPDATE users SET xp=? WHERE id=?', ((xp - xp_grenze), getID(userid)))
             sh_levelup(userid,1)
-            connection.commit() 
         else:
             cursor.execute('UPDATE users SET xp=? WHERE id=?', ((xp), getID(userid)))
-            connection.commit() 
         # Show the player's current level XP
         xp_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/xp_msg.ini')
         global popup_language
@@ -300,6 +298,7 @@ def sh_givexp(userid,amount,reason):
         tokens['amount'] = amount
         es.tell(userid,'#multi',xp_msg('xp_gain',tokens,lang=str(popup_language)),reason)
         showxp(userid, None)
+        connection.commit()
         
 def sh_levelup(userid,amount):
     steamid = es.getplayersteamid(userid)
@@ -307,13 +306,13 @@ def sh_levelup(userid,amount):
         return
     amount = int(amount)
     cursor.execute('UPDATE users SET level=(level + ?), unspent=(unspent + ?) WHERE id=?', (amount, amount, getID(userid)))
-    connection.commit()
     es.playsound(userid, 'ambient/tones/elev1.wav', 1.0)
     #es.playsound(userid, 'plats/elevbell1.wav', 1.0)
     xp_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/xp_msg.ini')
     global popup_language
     es.tell(userid,'#multi',xp_msg('xp_levelup',lang=str(popup_language)))
     showxp(userid, None)
+    connection.commit()
 
 def map_end(ev):
     print "Map End...Saving Players..."
@@ -413,20 +412,22 @@ def showmenu_selection(userid,choice,popupname):
                         es.tell(userid,'#multi',showmenu_msg('showmenu_allpowers',lang=str(popup_language)))
                         return
         else:
-                cursor.execute('UPDATE users SET heroes=?, unspent=(unspent - 1) WHERE id=?', (string, getID(userid)))
-                pid, punspent, pheroes, ppowerx = cursor.execute('SELECT id, unspent, heroes, powerx FROM users WHERE id=?', (steamid,)).fetchone()
-                tokens = {}
-                tokens['choice'] = choice
-                es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
-                if int(punspent) > 0:
-                    showmenu()
-                return
+            cursor.execute('UPDATE users SET heroes=?, unspent=(unspent - 1) WHERE id=?', (string, getID(userid)))
+            pid, punspent, pheroes, ppowerx = cursor.execute('SELECT id, unspent, heroes, powerx FROM users WHERE id=?', (steamid,)).fetchone()
+            tokens = {}
+            tokens['choice'] = choice
+            es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
+            if int(punspent) > 0:
+                showmenu()
+            connection.commit()
+            return
         if req_level <= level:
             cursor.execute('UPDATE users SET heroes=?, unspent=(unspent - 1) WHERE id=?', (string, getID(userid)))
             pid, punspent, pheroes, ppowerx = cursor.execute('SELECT id, unspent, heroes, powerx FROM users WHERE id=?', (steamid,)).fetchone()
             tokens = {}
             tokens['choice'] = choice
             es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
+            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(choice)+'/selected') #RYANS MOD
             if ppowerx != '0':
                 tokens = {}
                 tokens['powerx'] = '+'+ppowerx
@@ -482,11 +483,13 @@ def drop(userid, args):
         if int(text('power')) == 1:
             if ppower1 == heroname:
                 cursor.execute('UPDATE users SET power1=\'0\' WHERE id=?', (steamid,))
+                connection.commit()
             if ppower2 == heroname:
                 cursor.execute('UPDATE users SET power2=\'0\' WHERE id=?', (steamid,))
+                connection.commit()
             if ppower3 == heroname:
                 cursor.execute('UPDATE users SET power3=\'0\' WHERE id=?', (steamid,))
-                
+                connection.commit()
         es.tell(userid,'#multi',drop_msg('drop_suc',tokens,lang=str(popup_language)))
     else:
         es.tell(userid,'#multi',drop_msg('drop_not',tokens,lang=str(popup_language)))      
@@ -560,6 +563,7 @@ def clearpowers():
                 cursor.execute('UPDATE users SET power3=\'0\' WHERE id=?', (steamid,))
             counter += 1
     cursor.execute('UPDATE users SET heroes=\'0\', powerx=\'0\' WHERE id=?', (steamid,))
+    connection.commit()
     other_msg = langlib.Strings(es.getAddonPath("superhero") + "/languages/other_msg.ini")
     tokens = {}
     tokens['counter'] = counter
@@ -579,6 +583,7 @@ def power(userid, args):
         pid, ppowerx = cursor.execute('SELECT id, power3 FROM users WHERE id=?', (steamid,)).fetchone()
     if pid == steamid:
         cursor.execute('UPDATE users SET powerx=? WHERE id=?', (powerx, steamid))
+        connection.commit()
         if str(ppowerx) != '0':
             es.server.queuecmd('es_xdoblock superhero/heroes/'+str(ppowerx)+'/power')
 
@@ -596,6 +601,7 @@ def poweroff(userid, args):
         pid, ppowerx = cursor.execute('SELECT id, power3 FROM users WHERE id=?', (steamid,)).fetchone()
     if pid == steamid:
         cursor.execute('UPDATE users SET powerx=? WHERE id=?', (powerx, steamid))
+        connection.commit()
         if str(ppowerx) != '0':
             es.server.queuecmd('es_xdoblock superhero/heroes/'+str(ppowerx)+'/poweroff')
                                      

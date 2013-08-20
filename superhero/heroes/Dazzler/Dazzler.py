@@ -8,21 +8,16 @@ gusers = {}
 
 def load():
     es.dbgmsg(0, "[SH] Successfully loaded Dazzler")
-
-def player_spawn(ev):
-    global gusers
-    userid = ev['userid']
-    if superhero.hasHero(ev['userid'],'Dazzler'):
-        gusers[userid] = {}
-        gusers[ev['userid']]['dazzle'] = int(time.time())
     
 def power():
     global gusers
     userid = str(es.getcmduserid())
     if not es.exists('userid',userid):
         return
+    gusers[userid] = {}
     player = playerlib.getPlayer(userid)
     if int(player.isdead) != 1:
+        gusers[userid]['dazzle'] = int(time.time())
         if int(time.time()) >= int(gusers[userid]['dazzle']):
             nearPlayers = player.getNearPlayers(750)
             counter = 0

@@ -3,6 +3,9 @@ import playerlib
 import gamethread
 import time
 superhero = es.import_addon('superhero')
+from collections import defaultdict
+MAX_POW = 1
+jub = defaultdict(int)
 global gusers
 gusers = {}
 
@@ -11,33 +14,25 @@ def load():
 
 def unload():
     gamethread.cancelDelayed("Unblind")
-    
-def player_spawn(ev):
-    global gusers
-    userid = ev['userid']
-    if superhero.hasHero(userid,'Jubilee'):
-        player = playerlib.getPlayer(userid)
-        if not playerlib.getPlayer(userid).isdead:
-            gusers[userid] = {}
-            gusers[ev['userid']]['jub_cooldown'] = int(time.time())
-            gusers[userid]['jub_protect'] = 0
             
 def power():
+    global gusers
     userid = str(es.getcmduserid())
-    if not es.exists('userid',userid):
-        return
+    gusers[userid] = {}
+    gusers[userid]['jub_cooldown'] = int(time.time())
     player = playerlib.getPlayer(userid)
     if int(player.isdead) != 1:
-        if not 'jub_cooldown' in gusers[userid]:
-            gusers[userid]['jub_cooldown'] = int(time.time()) + 5
-        if int(time.time()) >= int(gusers[userid]['jub_cooldown']):
-            es.tell(userid, '#multi', '#green[SH]#lightgreen Jubilee pink shades now protect you from flashbangs')
-            fade(userid, 0, 5, 5, 64, 0, 64, 130)
-            gusers[userid]['jub_protect'] = 1
-            gusers[userid]['jub_cooldown'] = int(time.time()) + 30
-            gamethread.delayed(10, Unblind, userid)
-        else:
-            es.tell(userid, '#multi', '#green[SH]#lightgreen Cannot activate Jubilee #green',int(gusers[userid]['jub_cooldown'])-int(time.time()),'#lightgreenseconds left')
+            if not 'jub_cooldown' in gusers[userid]:
+                gusers[userid]['jub_cooldown'] = int(time.time()) + 5
+            if int(time.time()) >= int(gusers[userid]['jub_cooldown']):
+                if jub[userid] < MAX_POW:
+                    es.tell(userid, '#multi', '#green[SH]#lightgreen Jubilee pink shades now protect you from flashbangs')
+                    fade(userid, 0, 5, 5, 64, 0, 64, 130)
+                    gusers[userid]['jub_cooldown'] = int(time.time()) + 25
+                    gamethread.delayed(12, Unblind, userid)
+                    jub[userid] += 1
+            else:
+                es.tell(userid, '#multi', '#green[SH]#lightgreen Cannot activate Jubilee #green',int(gusers[userid]['jub_cooldown'])-int(time.time()),'#lightgreenseconds left')
             
 def fade(users, type, fadetime, totaltime, r, g, b, a):
     t = int(type)
@@ -62,12 +57,11 @@ def player_blind(ev):
     userid = ev['userid']
     if superhero.hasHero(userid,'Jubilee'):
         global gusers
-        if gusers[userid]['jub_protect'] == 1:
+        if jub[userid] == 1:
             es.setplayerprop(userid,'CCSPlayer.m_flFlashMaxAlpha',0)
 	    es.setplayerprop(userid,'CCSPlayer.m_flFlashDuration',0)
-            es.tell(userid, '#multi', '#greentest')
         
 def Unblind(userid):
     global gusers
-    gusers[userid]['jub_protect'] = 0
+    jub.clear()
     es.tell(userid, '#multi', '#green[SH]#lightgreen Jubilee protection has ended, now you are vulnerable to flashes')

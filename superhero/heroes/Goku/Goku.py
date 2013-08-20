@@ -37,6 +37,18 @@ def round_end(ev):
     if superhero.hasHero(userid,'Goku'):
         gamethread.cancelDelayed(KI_regen)
         
+def selected():
+    global gusers
+    userid = es.getcmduserid()
+    es.tell(userid,"Debug - This actually works")
+    if superhero.hasHero(userid,'Goku'):
+        gusers[userid] = {}
+        gusers[userid]['LVL'] = 0
+        gamethread.cancelDelayed(KI_regen)
+        player = playerlib.getPlayer(userid)
+        player.armor = 100
+        KI_regen(userid)
+
 def power():
     global gusers
     userid = str(es.getcmduserid())

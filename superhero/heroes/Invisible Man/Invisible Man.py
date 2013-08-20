@@ -29,8 +29,8 @@ def player_spawn(ev):
 def selected():
     global gusers
     userid = es.getcmduserid()
-    gusers[userid] = {}
     if superhero.hasHero(userid,'Invisible Man'):
+        gusers[userid] = {}
         es.delayed(1,'es_xdoblock superhero/heroes/Invisible Man/check_moving')
 
 def round_end(ev):

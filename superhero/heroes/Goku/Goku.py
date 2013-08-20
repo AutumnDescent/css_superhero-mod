@@ -22,7 +22,6 @@ def player_spawn(ev):
     if superhero.hasHero(userid,'Goku'):
         gamethread.cancelDelayed(KI_regen)
         player = playerlib.getPlayer(userid)
-        #gusers[userid]['LVL'] = 0
         player.armor = 100
         KI_regen(userid)
 
@@ -39,47 +38,47 @@ def round_end(ev):
         gamethread.cancelDelayed(KI_regen)
         
 def power():
+    global gusers
     userid = str(es.getcmduserid())
     if not es.exists('userid',userid):
         return
     player = playerlib.getPlayer(userid)
     if int(player.isdead) != 1:
-        if 'LVL' in gusers[userid]:
-            if gusers[userid]['LVL'] == 0:
-                es.tell(userid, '#multi', '#green[SH]#lightgreen Cant release KI, you have to be at least 1 lvl')
-            elif gusers[userid]['LVL'] == 1:
-                speed(userid, 1.5)
-                setgravity(userid, 0.75)
-                player.armor = 0
-                es.tell(userid, '#multi', '#green[SH]#lightgreen You have released KI on 1 LVL')
-                gamethread.delayed(10, speed, (userid, 1))
-                gamethread.delayed(10, setgravity,(userid, 1))
-                gamethread.delayed(10, endmessage, userid)
-            elif gusers[userid]['LVL'] == 2:
-                speed(userid, 2)
-                setgravity(userid, 0.65)
-                player.armor = 0
-                es.tell(userid, '#multi', '#green[SH]#lightgreen You have released KI on 2 LVL')
-                gamethread.delayed(10, speed, (userid, 1))
-                gamethread.delayed(10, setgravity,(userid, 1))
-                gamethread.delayed(10, endmessage, userid)
-            elif gusers[userid]['LVL'] == 3:
-                speed(userid, 2.30)
-                setgravity(userid, 0.55)
-                player.armor = 0
-                es.tell(userid, '#multi', '#green[SH]#lightgreen You have released KI on 3 LVL')
-                gamethread.delayed(10, speed, (userid, 1))
-                gamethread.delayed(10, setgravity,(userid, 1))
-                gamethread.delayed(10, endmessage, userid)
-            elif gusers[userid]['LVL'] == 4:
-                speed(userid, 2.60)
-                setgravity(userid, 0.45)
-                player.armor = 0
-                es.tell(userid, '#multi', '#green[SH]#lightgreen You have released KI on 4 LVL! Destroy them all!')
-                gamethread.delayed(10, speed, (userid, 1))
-                gamethread.delayed(10, setgravity,(userid, 1))
-                gamethread.delayed(10, endmessage, userid)
-        else: gusers[userid]['LVL'] = 0
+        if gusers[userid]['LVL'] == 0:
+            es.tell(userid, '#multi', '#green[SH]#lightgreen Cant release KI, you have to be at least 1 lvl')
+        elif gusers[userid]['LVL'] == 1:
+            speed(userid, 1.5)
+            setgravity(userid, 0.75)
+            player.armor = 0
+            es.tell(userid, '#multi', '#green[SH]#lightgreen You have released KI on 1 LVL')
+            gamethread.delayed(10, speed, (userid, 1))
+            gamethread.delayed(10, setgravity,(userid, 1))
+            gamethread.delayed(10, endmessage, userid)
+        elif gusers[userid]['LVL'] == 2:
+            speed(userid, 2)
+            setgravity(userid, 0.65)
+            player.armor = 0
+            es.tell(userid, '#multi', '#green[SH]#lightgreen You have released KI on 2 LVL')
+            gamethread.delayed(10, speed, (userid, 1))
+            gamethread.delayed(10, setgravity,(userid, 1))
+            gamethread.delayed(10, endmessage, userid)
+        elif gusers[userid]['LVL'] == 3:
+            speed(userid, 2.30)
+            setgravity(userid, 0.55)
+            player.armor = 0
+            es.tell(userid, '#multi', '#green[SH]#lightgreen You have released KI on 3 LVL')
+            gamethread.delayed(10, speed, (userid, 1))
+            gamethread.delayed(10, setgravity,(userid, 1))
+            gamethread.delayed(10, endmessage, userid)
+        elif gusers[userid]['LVL'] == 4:
+            speed(userid, 2.60)
+            setgravity(userid, 0.45)
+            player.armor = 0
+            es.tell(userid, '#multi', '#green[SH]#lightgreen You have released KI on 4 LVL! Destroy them all!')
+            gamethread.delayed(10, speed, (userid, 1))
+            gamethread.delayed(10, setgravity,(userid, 1))
+            gamethread.delayed(10, endmessage, userid)
+    else: gusers[userid]['LVL'] = 0
 
 def KI_regen(userid):
     global gusers

@@ -78,22 +78,24 @@ def player_manage_selection(userid,choice,popup):
             es.playsound(uid, 'items/gift_drop.wav', 1.0)
             es.tell(uid,'#multi',admin_msg('admin_cleared',lang=popup_language))
             es.server.queuecmd('es_xsexec %s say /showxp' % uid)
+            connection.commit()
             
         if choice == 'give_level':
             cursor.execute('UPDATE users SET level=(level + 1), unspent=(unspent + 1) WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
             es.playsound(uid, 'ambient/tones/elev1.wav', 1.0)
             es.tell(uid,'#multi',admin_msg('admin_granted',lang=popup_language))
             es.server.queuecmd('es_xsexec %s say /showxp' % uid)
+            connection.commit()
             
         if choice == 'remove_level':
             pid, plevel, pxp, punspent, pheroes, ppower1, ppower2, ppower3 = cursor.execute('SELECT id, level, xp, unspent, heroes, power1, power2, power3 FROM users WHERE id=?', (superhero.getID(manage_user[str(uid)]),)).fetchone()
             if int(plevel) > 0:
                 cursor.execute('UPDATE users SET level=(level - 1) WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
+                connection.commit()
                 es.playsound(uid, 'buttons/weapon_cant_buy.wav', 1.0)
                 if int(punspent) > 0:
                     cursor.execute('UPDATE users SET unspent=(unspent - 1) WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
                 else:
-                    # Kein Unspent mehr, muss Hero entfernen
                     heroes = str(pheroes).split(',')
                     leng = int(len(heroes))
      
@@ -104,10 +106,13 @@ def player_manage_selection(userid,choice,popup):
                             heroes.remove(hero)
                             if str(ppower1) == hero:
                                 cursor.execute('UPDATE users SET power1=\'0\' WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
+                                connection.commit()
                             if str(ppower2) == hero:
                                 cursor.execute('UPDATE users SET power2=\'0\' WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
+                                connection.commit()
                             if str(ppower3) == hero:
                                 cursor.execute('UPDATE users SET power3=\'0\' WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
+                                connection.commit()
                             
                     except:
                         None
@@ -117,6 +122,7 @@ def player_manage_selection(userid,choice,popup):
                         if not hero in string:
                             string = string+','+str(hero)
                     cursor.execute('UPDATE users SET heroes=? WHERE id=?', (string,superhero.getID(manage_user[str(uid)])))
+                    connection.commit()
                 es.tell(uid,'#multi',admin_msg('admin_removed',lang=popup_language))
                 es.server.queuecmd('es_xsexec %s say /showxp' % uid)
             else:
@@ -125,9 +131,9 @@ def player_manage_selection(userid,choice,popup):
         if choice == 'give_50xp':
             superhero.sh_givexp(uid,50,admin_msg('admin_givexp',lang=popup_language))
             es.playsound(uid, 'items/itempickup.wav', 1.0)
+            connection.commit()
         if choice == 'give_200xp':
             superhero.sh_givexp(uid,200,admin_msg('admin_givexp',lang=popup_language))
             es.playsound(uid, 'items/itempickup.wav', 1.0)
-        
-        connection.commit() # Commit changes to table
+            connection.commit() # Commit changes to table
     es.server.queuecmd('es_xsexec %s say /sh_admin' % userid)

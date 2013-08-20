@@ -68,6 +68,20 @@ def unload():
 
     bat_menu_rifles.delete()
 
+
+def selected():
+
+    userid = es.getcmduserid()
+
+    if superhero.hasHero(userid,'Batman'):
+
+        if popuplib.isqueued('bat_menu',userid):
+
+            popuplib.close('bat_menu',userid)
+
+        popuplib.send('bat_menu',userid)
+
+        es.tell(userid,'#multi','#green[SH]#lightgreen Batman activated. Type #greenbatmenu #lightgreento pick Weapons')
     
 
 def batmenu():

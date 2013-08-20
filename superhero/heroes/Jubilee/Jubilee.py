@@ -63,5 +63,6 @@ def player_blind(ev):
         
 def Unblind(userid):
     global gusers
-    jub.clear()
+    userid = str(userid)
+    jub[userid] = 0
     es.tell(userid, '#multi', '#green[SH]#lightgreen Jubilee protection has ended, now you are vulnerable to flashes')

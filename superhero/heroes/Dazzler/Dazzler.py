@@ -3,38 +3,41 @@ import playerlib
 import usermsg
 import time
 superhero = es.import_addon('superhero')
+global gusers
+gusers = {}
 
 def load():
     es.dbgmsg(0, "[SH] Successfully loaded Dazzler")
 
 def player_spawn(ev):
+    global gusers
     userid = ev['userid']
     if superhero.hasHero(ev['userid'],'Dazzler'):
-        player = playerlib.getPlayer(userid)
-        if not playerlib.getPlayer(userid).isdead:
-            superhero.Users[str(ev['userid'])]['dazzle'] = int(time.time())
+        gusers[userid] = {}
+        gusers[ev['userid']]['dazzle'] = int(time.time())
     
 def power():
+    global gusers
     userid = str(es.getcmduserid())
+    if not es.exists('userid',userid):
+        return
     player = playerlib.getPlayer(userid)
     if int(player.isdead) != 1:
-        powerx = str(superhero.Users[userid]['powerx'])
-        if superhero.Users[userid][powerx] == 'Dazzler':
-            if not 'dazzle' in superhero.Users[userid]:
-                superhero.Users[userid]['dazzle'] = int(time.time()) + 15
-            if int(time.time()) >= int(superhero.Users[userid]['dazzle']):
-                nearPlayers = player.getNearPlayers(750)
-                counter = 0
-                for dude in nearPlayers:
-                        if playerlib.getPlayer(dude).teamid != player.teamid:
-                            fade(dude, 1, 1, 2.5, 255, 255, 255, 255)
-                            es.tell(dude,'#multi','#green[SH]#lightgreen You have been Dazzled by#green',es.getplayername(userid))
-                            counter += 1
-                fade(userid, 1, 1, 2.5, 255, 255, 255, 255)
-                es.tell(userid,'#multi','#green[SH]#lightgreenYou dazzled #green',counter,'#lightgreenPlayers')
-                superhero.Users[userid]['dazzle'] = int(time.time()) + 15
-            else:
-                es.tell(userid,'#multi','#green[SH]#lightgreen Cannot activate #greenDazzler#lightgreen, you have to wait#green',int(superhero.Users[userid]['dazzle'])-int(time.time()),'#lightgreenmore seconds')
+        if not 'dazzle' in gusers[userid]:
+            gusers[userid]['dazzle'] = int(time.time()) + 15
+        if int(time.time()) >= int(gusers[userid]['dazzle']):
+            nearPlayers = player.getNearPlayers(750)
+            counter = 0
+            for dude in nearPlayers:
+                if playerlib.getPlayer(dude).teamid != player.teamid:
+                    fade(dude, 1, 1, 2.5, 255, 255, 255, 255)
+                    es.tell(dude,'#multi','#green[SH]#lightgreen You have been Dazzled by#green',es.getplayername(userid))
+                    counter += 1
+            fade(userid, 1, 1, 2.5, 255, 255, 255, 255)
+            es.tell(userid,'#multi','#green[SH]#lightgreenYou dazzled #green',counter,'#lightgreenPlayers')
+            gusers[userid]['dazzle'] = int(time.time()) + 15
+        else:
+            es.tell(userid,'#multi','#green[SH]#lightgreen Cannot activate #greenDazzler#lightgreen, you have to wait#green',int(gusers[userid]['dazzle'])-int(time.time()),'#lightgreenmore seconds')
         
 def fade(users, type, fadetime, totaltime, r, g, b, a):
     t = int(type)

@@ -17,6 +17,14 @@ def player_spawn(ev):
             gusers[userid] = {}
             gusers[userid]['my_cooldown'] = int(time.time())
 
+def selected():
+    global gusers
+    userid = str(es.getcmduserid())
+    if not es.exists('userid',userid):
+        return
+    gusers[userid] = {}
+    gusers[userid]['my_cooldown'] = int(time.time())
+
 def power():
     global gusers
     userid = str(es.getcmduserid())
@@ -24,8 +32,6 @@ def power():
         return
     player = playerlib.getPlayer(userid)
     if int(player.isdead) != 1:
-	if not 'my_cooldown' in gusers[userid]:
-		gusers[userid]['my_cooldown'] = int(time.time()) + 3
 	if int(time.time()) >= int(gusers[userid]['my_cooldown']):
 		gusers[userid]['my_cooldown'] = int(time.time()) + 3
 		RandSkin = random.randint(1, 4)

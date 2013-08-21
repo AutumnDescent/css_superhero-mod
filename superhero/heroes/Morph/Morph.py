@@ -12,15 +12,21 @@ def load():
 def player_spawn(ev):
     userid = ev['userid']
     global gusers
-    if es.exists('userid',userid):
-        player = playerlib.getPlayer(userid)
-        wcs_dead = player.isdead
-        if wcs_dead != 1:
-            if superhero.hasHero(userid,'Morph'):
-                gusers[userid] = {}
-                gusers[userid]['morph_cool'] = int(time.time())
-                gusers[userid]['morph_model'] = ''
-                gusers[userid]['morph_box'] = 0 
+    if superhero.hasHero(userid,'Morph'):
+        gusers[userid] = {}
+        gusers[userid]['morph_cool'] = int(time.time())
+        gusers[userid]['morph_model'] = ''
+        gusers[userid]['morph_box'] = 0 
+
+def selected():
+    global gusers
+    userid = str(es.getcmduserid())
+    if not es.exists('userid',userid):
+        return
+    gusers[userid] = {}
+    gusers[userid]['morph_cool'] = int(time.time())
+    gusers[userid]['morph_model'] = ''
+    gusers[userid]['morph_box'] = 0 
 
 def power():
     global gusers

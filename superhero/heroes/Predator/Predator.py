@@ -9,8 +9,9 @@ def load():
 
 def player_spawn(ev):
     userid = int(ev['userid'])
-    if superhero.hasHero(userid, 'Predator'):
-        giveDeagle(userid)
+    if not superhero.hasHero(userid, 'Predator'):
+        return
+    giveDeagle(userid)
 
 def giveDeagle(userid):
    for x in xrange(7): # CSS players can have up to 7 weapons
@@ -32,9 +33,10 @@ def giveDeagle(userid):
 def player_hurt(ev):
     userid = ev['userid']
     attacker = ev['attacker']
-    if superhero.hasHero(attacker,'Predator'):
-        weapon = ev['weapon']
-        if weapon == 'deagle':
-            if userid != attacker:
-                if ev['es_userteam'] != ev['es_attackerteam']: 
-                    es.server.queuecmd('damage %s 45 1024 %s' % (userid,attacker))
+    if not superhero.hasHero(attacker,'Predator'):
+        return
+    weapon = ev['weapon']
+    if weapon == 'deagle':
+        if userid != attacker:
+            if ev['es_userteam'] != ev['es_attackerteam']: 
+                es.server.queuecmd('damage %s 45 1024 %s' % (userid,attacker))

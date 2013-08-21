@@ -44,10 +44,11 @@ def fade(users, type, fadetime, totaltime, r, g, b, a):
     
 def player_blind(ev):
     userid = ev['userid']
-    if superhero.hasHero(userid,'Jubilee'):
-        if jub[userid] == 1:
-            es.setplayerprop(userid,'CCSPlayer.m_flFlashMaxAlpha',0)
-	    es.setplayerprop(userid,'CCSPlayer.m_flFlashDuration',0)
+    if not superhero.hasHero(userid,'Jubilee'):
+        return
+    if jub[userid] == 1:
+        es.setplayerprop(userid,'CCSPlayer.m_flFlashMaxAlpha',0)
+	es.setplayerprop(userid,'CCSPlayer.m_flFlashDuration',0)
         
 def Unblind(userid):
     userid = str(userid)

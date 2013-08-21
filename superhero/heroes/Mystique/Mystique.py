@@ -12,10 +12,10 @@ def load():
 def player_spawn(ev):
     userid = ev['userid']
     global gusers
-    if superhero.hasHero(userid,'Mystique'):
-        if not playerlib.getPlayer(userid).isdead:
-            gusers[userid] = {}
-            gusers[userid]['my_cooldown'] = int(time.time())
+    if not superhero.hasHero(userid,'Mystique'):
+        return
+    gusers[userid] = {}
+    gusers[userid]['my_cooldown'] = int(time.time())
 
 def selected():
     global gusers

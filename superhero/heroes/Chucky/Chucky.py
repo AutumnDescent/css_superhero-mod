@@ -10,7 +10,8 @@ def player_hurt(ev):
     attacker = ev['attacker']
     weapon = ev['weapon']
     if weapon == 'knife':
-        if superhero.hasHero(attacker,'Chucky'):
-            if userid != attacker:
-                es.server.queuecmd('damage %s 40 1024 %s' % (userid,attacker))
-                es.tell(attacker,'#multi','#green[SH]#lightgreen Chucky did extra Damage to#green',ev['es_username'])
+        if not superhero.hasHero(attacker,'Chucky'):
+            return
+        if userid != attacker:
+            es.server.queuecmd('damage %s 40 1024 %s' % (userid,attacker))
+            es.tell(attacker,'#multi','#green[SH]#lightgreen Chucky did extra Damage to#green',ev['es_username'])

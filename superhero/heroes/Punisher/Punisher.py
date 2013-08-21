@@ -1,17 +1,17 @@
+
 import es
 import weaponlib
 import playerlib
 superhero = es.import_addon('superhero')
+from playerlib import getPlayer
+from weaponlib import getWeapon
 
-def load():
-    es.dbgmsg(0, "[SH] Successfully loaded Punisher")
-    
 def weapon_fire(ev):
-    userid = ev['userid']
-    if superhero.hasHero(userid,'Punisher'):
-        player = playerlib.getPlayer(userid)
-        weapon = weaponlib.getWeapon(ev['weapon'])
-        ammo = int(player.getClip(ev['weapon']))
-        clip = weapon['clip']
-        if ammo == 0:
-            player.setClip(ev['weapon'],clip)
+   userid = ev['userid']
+   if not superhero.hasHero(userid, 'Punisher'):
+      return
+   weapon = getWeapon(ev['weapon'])
+   if weapon is not None and weapon.slot in (1, 2):
+      player = getPlayer(ev['userid'])
+      if not player.getClip(weapon):
+         player.setClip(weapon, weapon.clip)

@@ -287,7 +287,7 @@ def sh_givexp(userid,amount,reason):
         xp = amount + int(pxp)
         if int(xp) >= int(xp_grenze):
             # The player is above max xp
-            cursor.execute('UPDATE users SET xp=? WHERE id=?', ((xp - xp_grenze), getID(userid)))
+            cursor.execute('UPDATE users SET xp=? WHERE id=?', ((xp), getID(userid)))
             sh_levelup(userid,1)
         else:
             cursor.execute('UPDATE users SET xp=? WHERE id=?', ((xp), getID(userid)))

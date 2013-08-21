@@ -1,4 +1,4 @@
-import es
+﻿import es
 import random
 import playerlib
 import time
@@ -12,11 +12,12 @@ def load():
 def player_spawn(ev):
     userid = ev['userid']
     global gusers
-    if superhero.hasHero(userid,'Morph'):
-        gusers[userid] = {}
-        gusers[userid]['morph_cool'] = int(time.time())
-        gusers[userid]['morph_model'] = ''
-        gusers[userid]['morph_box'] = 0 
+    if not superhero.hasHero(userid,'Morph'):
+        return
+    gusers[userid] = {}
+    gusers[userid]['morph_cool'] = int(time.time())
+    gusers[userid]['morph_model'] = ''
+    gusers[userid]['morph_box'] = 0 
 
 def selected():
     global gusers

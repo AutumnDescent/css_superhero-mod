@@ -1,4 +1,4 @@
-﻿import es
+import es
 import playerlib
 import random
 import gamethread
@@ -31,7 +31,9 @@ def player_death(ev):
     for player in PlayerList:
         loop_userid = player.userid
         loop_userid != userid
-        if superhero.hasHero(player.userid,'Zeus'):
+        if not superhero.hasHero(player.userid,'Zeus'):
+            return
+        if not player.isdead:
             if spawns[loop_userid] < MAX_SPAWNS:
                 if int(player.userid) != int(userid):
                     rand = int(random.randint(1,1))

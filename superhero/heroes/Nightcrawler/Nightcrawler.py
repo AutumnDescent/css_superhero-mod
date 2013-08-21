@@ -1,4 +1,4 @@
-import es
+﻿import es
 import playerlib
 import usermsg
 import time
@@ -20,18 +20,18 @@ def round_end(ev):
     global gusers
     global round_ended
     round_ended = 1
-    if superhero.hasHero(ev['userid'],'Nightcrawler'):
-        gusers[userid] = {}
-        gusers[ev['userid']]['on_ground'] = 0
+    if not superhero.hasHero(ev['userid'],'Nightcrawler'):
+        return
+    gusers[userid] = {}
+    gusers[ev['userid']]['on_ground'] = 0
 
 def player_spawn(ev):
     global gusers
     userid = ev['userid']
-    if not es.exists('userid',userid):
+    if not superhero.hasHero(ev['userid'],'Nightcrawler'):
         return
-    if superhero.hasHero(ev['userid'],'Nightcrawler'):
-        gusers[userid] = {}
-        gusers[ev['userid']]['nc_cooldown'] = int(time.time())
+    gusers[userid] = {}
+    gusers[ev['userid']]['nc_cooldown'] = int(time.time())
 
 def selected():
     global gusers
@@ -39,9 +39,10 @@ def selected():
     userid = str(userid)
     if not es.exists('userid',userid):
         return
-    if superhero.hasHero(userid,'Nightcrawler'):
-        gusers[userid] = {}
-        gusers[userid]['nc_cooldown'] = int(time.time())
+    if not superhero.hasHero(userid,'Nightcrawler'):
+        return
+    gusers[userid] = {}
+    gusers[userid]['nc_cooldown'] = int(time.time())
 
     
 def power():

@@ -12,13 +12,14 @@ def unload():
 
 def player_spawn(ev):
     userid = ev['userid']
-    if superhero.hasHero(userid,'Superman'):
-        player = playerlib.getPlayer(userid)
-        if not playerlib.getPlayer(userid).isdead:
-            health = player.health
-            player.health = health + 75
-            armor = player.armor
-            player.set("armor", "120")
+    if not superhero.hasHero(userid,'Superman'):
+        return
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
+        health = player.health
+        player.health = health + 75
+        armor = player.armor
+        player.set("armor", "120")
     
 def shfilter(userid, args):
     userid = str(userid) 

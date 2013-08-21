@@ -1,4 +1,4 @@
-import es
+﻿import es
 import gamethread
 import playerlib
 from playerlib import getPlayer, UseridError
@@ -20,8 +20,9 @@ def es_map_start(ev):
 
 def player_spawn(ev):
     userid = ev['userid']
-    if superhero.hasHero(userid, 'Iron Man'):
-        fuel_regen(userid)
+    if not superhero.hasHero(userid, 'Iron Man'):
+        return
+    fuel_regen(userid)
 
 def round_end(ev):
     gamethread.cancelDelayed(delayname % ev['userid'])

@@ -13,9 +13,10 @@ def unload():
 
 def player_spawn(ev):
     userid = ev['userid']
-    if superhero.hasHero(userid,'Daredevil'):
-        gamethread.cancelDelayed(beacon)
-        beacon(userid)
+    if not superhero.hasHero(userid,'Daredevil'):
+        return
+    gamethread.cancelDelayed(beacon)
+    beacon(userid)
 
 def beacon(userid):
     for player in playerlib.getPlayerList('#alive'):

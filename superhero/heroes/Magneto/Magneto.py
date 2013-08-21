@@ -1,4 +1,4 @@
-import es
+﻿import es
 import random
 import playerlib
 import gamethread
@@ -42,11 +42,9 @@ def wep_remove(userid):
             for x in xrange(7):
                 handle = es.getplayerprop(userid, 'CBaseCombatCharacter.m_hMyWeapons.%03d' % x)
                 if handle > 0:
-                    index = es.getindexfromhandle(handle)
-
+                    index = es.getindexfromhandle(handle)
                     weapon = weaponlib.getWeapon(es.entitygetvalue(index, 'classname'))
                     if weapon is not None and 'primary' in weapon.tags:
-                        es.entitysetvalue(index, 'targetname', 'kill_me')
-
+                        es.entitysetvalue(index, 'targetname', 'kill_me')
                         es.server.queuecmd('es_xfire %s kill_me kill'%userid)
                         

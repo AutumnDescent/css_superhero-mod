@@ -8,11 +8,10 @@ def load():
     
 def player_spawn(ev):
     userid = ev['userid']
-    if not es.exists('userid',userid):
-        return
     player = playerlib.getPlayer(userid)
     if not playerlib.getPlayer(userid).isdead:
-        if superhero.hasHero(userid,'Flash'):
-            player.set("speed", 1.5)
-        else:
+        if not superhero.hasHero(userid,'Flash'):
             return
+        player.set("speed", 1.5)
+    else:
+        return

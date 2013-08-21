@@ -73,24 +73,28 @@ def selected():
 
     userid = es.getcmduserid()
 
-    if superhero.hasHero(userid,'Batman'):
+    if not superhero.hasHero(userid,'Batman'):
 
-        popuplib.send('bat_menu',userid)
+        return
 
-        es.tell(userid,'#multi','#green[SH]#lightgreen Batman activated. Type #greenbatmenu #lightgreento pick Weapons')
+    popuplib.send('bat_menu',userid)
+
+    es.tell(userid,'#multi','#green[SH]#lightgreen Batman activated. Type #greenbatmenu #lightgreento pick Weapons')
     
 
 def batmenu():
 
     userid = str(es.getcmduserid())
 
-    if superhero.hasHero(userid,'Batman'):
+    if not superhero.hasHero(userid,'Batman'):
 
-        if popuplib.isqueued('bat_menu',userid):
+        return
 
-            popuplib.close('bat_menu',userid)
+    if popuplib.isqueued('bat_menu',userid):
 
-        popuplib.send('bat_menu',userid)
+        popuplib.close('bat_menu',userid)
+
+    popuplib.send('bat_menu',userid)
 
     
 
@@ -180,18 +184,20 @@ def weapon_give(userid,weapon,popupname):
 def player_spawn(ev):
     userid = ev['userid']
 
-    if superhero.hasHero(userid,'Batman'):
+    if  not superhero.hasHero(userid,'Batman'):
 
-        player = playerlib.getPlayer(userid)
+        return
 
-        if int(player.isdead) != 1:
-            primary = player.getPrimary()
+    player = playerlib.getPlayer(userid)
 
-            es.tell(userid,'#multi','#green[SH]#lightgreen Batman activated. Type #greenbatmenu #lightgreento pick Weapons')
+    if int(player.isdead) != 1:
+        primary = player.getPrimary()
 
-            if popuplib.isqueued('bat_menu',userid):
+        es.tell(userid,'#multi','#green[SH]#lightgreen Batman activated. Type #greenbatmenu #lightgreento pick Weapons')
 
-                popuplib.close('bat_menu',userid)
-            if not primary:
+        if popuplib.isqueued('bat_menu',userid):
 
-                popuplib.send('bat_menu',userid)
+            popuplib.close('bat_menu',userid)
+        if not primary:
+
+            popuplib.send('bat_menu',userid)

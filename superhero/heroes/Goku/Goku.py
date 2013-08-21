@@ -19,35 +19,38 @@ def es_map_start(ev):
 def player_spawn(ev):
     global gusers
     userid = ev['userid']
-    if superhero.hasHero(userid,'Goku'):
-        gamethread.cancelDelayed(KI_regen)
-        player = playerlib.getPlayer(userid)
-        player.armor = 100
-        KI_regen(userid)
+    if not superhero.hasHero(userid,'Goku'):
+        return
+    gamethread.cancelDelayed(KI_regen)
+    player = playerlib.getPlayer(userid)
+    player.armor = 100
+    KI_regen(userid)
 
 def player_death(ev):
     global gusers
     userid = ev['userid']
-    if superhero.hasHero(userid,'Goku'):
-        gamethread.cancelDelayed(KI_regen)
+    if not superhero.hasHero(userid,'Goku'):
+        return
+    gamethread.cancelDelayed(KI_regen)
 
 def round_end(ev):
     global gusers
     userid = ev['userid']
-    if superhero.hasHero(userid,'Goku'):
-        gamethread.cancelDelayed(KI_regen)
+    if not superhero.hasHero(userid,'Goku'):
+        return
+    gamethread.cancelDelayed(KI_regen)
         
 def selected():
     global gusers
     userid = es.getcmduserid()
-    es.tell(userid,"Debug - This actually works")
-    if superhero.hasHero(userid,'Goku'):
-        gusers[userid] = {}
-        gusers[userid]['LVL'] = 0
-        gamethread.cancelDelayed(KI_regen)
-        player = playerlib.getPlayer(userid)
-        player.armor = 100
-        KI_regen(userid)
+    if not superhero.hasHero(userid,'Goku'):
+        return
+    gusers[userid] = {}
+    gusers[userid]['LVL'] = 0
+    gamethread.cancelDelayed(KI_regen)
+    player = playerlib.getPlayer(userid)
+    player.armor = 100
+    KI_regen(userid)
 
 def power():
     global gusers
@@ -95,29 +98,32 @@ def power():
 def KI_regen(userid):
     global gusers
     userid = str(userid)
-    if superhero.hasHero(userid, 'Goku'): 
-        player = playerlib.getPlayer(userid)
-        if int(player.isdead) != 1:
-            gusers[userid] = {}
-            gusers[userid]['GokuJump'] = 1.0
-            if player.armor < 450:
-                player.armor = player.armor + 5
-            if player.armor < 150:
-                hsay(userid, 'Your LVL is 0!\nKI = %i'%player.armor)
-                gusers[userid]['LVL'] = 0
-            if player.armor in range(150, 226):
-                hsay(userid, 'Your LVL is 1!\nKI = %i'%player.armor)
-                gusers[userid]['LVL'] = 1
-            elif player.armor in range(227, 301):
-                hsay(userid, 'Your LVL is 2!\nKI = %i'%player.armor)
-                gusers[userid]['LVL'] = 2
-            elif player.armor in range(302, 376):
-                hsay(userid, 'Your LVL is 3!\nKI = %i'%player.armor)
-                gusers[userid]['LVL'] = 3
-            elif player.armor > 375:
-                hsay(userid, 'Your LVL is 4!\nKI = %i'%player.armor)
-                gusers[userid]['LVL'] = 4
-        gamethread.delayedname(1, KI_regen, KI_regen, userid)
+    if not es.exists('userid',userid):
+        return
+    if not superhero.hasHero(userid, 'Goku'):
+        return
+    player = playerlib.getPlayer(userid)
+    if int(player.isdead) != 1:
+        gusers[userid] = {}
+        gusers[userid]['GokuJump'] = 1.0
+        if player.armor < 450:
+            player.armor = player.armor + 5
+        if player.armor < 150:
+            hsay(userid, 'Your LVL is 0!\nKI = %i'%player.armor)
+            gusers[userid]['LVL'] = 0
+        if player.armor in range(150, 226):
+            hsay(userid, 'Your LVL is 1!\nKI = %i'%player.armor)
+            gusers[userid]['LVL'] = 1
+        elif player.armor in range(227, 301):
+            hsay(userid, 'Your LVL is 2!\nKI = %i'%player.armor)
+            gusers[userid]['LVL'] = 2
+        elif player.armor in range(302, 376):
+            hsay(userid, 'Your LVL is 3!\nKI = %i'%player.armor)
+            gusers[userid]['LVL'] = 3
+        elif player.armor > 375:
+            hsay(userid, 'Your LVL is 4!\nKI = %i'%player.armor)
+            gusers[userid]['LVL'] = 4
+    gamethread.delayedname(1, KI_regen, KI_regen, userid)
                                                 
 def hsay(userid, text):
     es.usermsg("create", "hudhint", "HintText")

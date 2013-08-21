@@ -75,6 +75,7 @@ def player_manage_selection(userid,choice,popup):
     if es.exists('userid',player.userid):
         if choice == 'clear':
             cursor.execute('UPDATE users SET unspent=\'0\', level=\'0\', xp=\'0\', heroes=\'0\', power1=\'0\', power2=\'0\', power3=\'0\' WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
+            cursor.execute('UPDATE users SET level=(level + 1), unspent=(unspent + 1) WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
             es.playsound(uid, 'items/gift_drop.wav', 1.0)
             es.tell(uid,'#multi',admin_msg('admin_cleared',lang=popup_language))
             es.server.queuecmd('es_xsexec %s say /showxp' % uid)

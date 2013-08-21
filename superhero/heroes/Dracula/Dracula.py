@@ -14,9 +14,10 @@ def player_hurt(ev):
     chance = 25
     dice = random.randint(1,100)
     if dice <= chance:
-        if superhero.hasHero(attacker,'Dracula'):
-            drain = 0.5
-            health = int(damage*drain)
-            player = playerlib.getPlayer(attacker)
-            player.health = player.health + health
-            es.centertell(attacker,'Drained',health,'Health')
+        if not superhero.hasHero(attacker,'Dracula'):
+            return
+        drain = 0.5
+        health = int(damage*drain)
+        player = playerlib.getPlayer(attacker)
+        player.health = player.health + health
+        es.centertell(attacker,'Drained',health,'Health')

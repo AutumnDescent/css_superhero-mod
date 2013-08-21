@@ -18,15 +18,16 @@ def es_map_start(ev):
 def player_hurt(ev):
     userid = ev['userid']
     attacker = ev['attacker']
-    if superhero.hasHero(attacker,'Blade'):
-        if userid != attacker:
-            if superhero.hasHero(userid,'Dracula'):
-                chance = 60
-            else: chance = 20
-            if random.randint(1, 100) <= chance:
-                player = playerlib.getPlayer(userid)
-                player.burn()
-                gamethread.delayed(1, unburn, userid)
+    if not superhero.hasHero(attacker,'Blade'):
+        return
+    if userid != attacker:
+        if superhero.hasHero(userid,'Dracula'):
+            chance = 60
+        else: chance = 20
+        if random.randint(1, 100) <= chance:
+            player = playerlib.getPlayer(userid)
+            player.burn()
+            gamethread.delayed(1, unburn, userid)
             
 def unburn(userid):
     es.fire(userid, "!self", "IgniteLifetime", 0)

@@ -102,6 +102,7 @@ def player_manage_selection(userid,choice,popup):
                 es.playsound(uid, 'buttons/weapon_cant_buy.wav', 1.0)
                 if int(punspent) > 0:
                     cursor.execute('UPDATE users SET unspent=(unspent - 1) WHERE id=?', (superhero.getID(manage_user[str(uid)]),))
+                    connection.commit()
                 else:
                     heroes = str(pheroes).split(',')
                     leng = int(len(heroes))

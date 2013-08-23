@@ -143,7 +143,13 @@ def setgravity(userid, ratio):
         
         
 def endmessage(userid):
+    userid = str(userid)
     es.tell(userid, '#multi', '#green[SH]#lightgreen You are back to normal')
+    player = playerlib.getPlayer(userid)
+    if superhero.hasHero(userid,'Flash'):
+        player.set("speed", 1.5)
+    else:
+        return
     
 def player_jump(ev):
     userid = ev['userid']

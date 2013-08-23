@@ -13,6 +13,12 @@ def player_spawn(ev):
         return
     giveDeagle(userid)
 
+def selected():
+    userid = int(es.getcmduserid())
+    if not superhero.hasHero(userid, 'Predator'):
+        return
+    giveDeagle(userid)
+
 def giveDeagle(userid):
    for x in xrange(7): # CSS players can have up to 7 weapons
       handle = es.getplayerprop(userid, 'CBaseCombatCharacter.m_hMyWeapons.%03d' % x)

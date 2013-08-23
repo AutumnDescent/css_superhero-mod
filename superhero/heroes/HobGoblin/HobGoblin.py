@@ -29,10 +29,18 @@ def player_spawn(ev):
     userid = ev['userid']
     if not superhero.hasHero(userid,'HobGoblin'):
         return
+    gamethread.cancelDelayed(check_nade)
+    check_nade()
+
+def selected():
+    userid = es.getcmduserid()
+    if not superhero.hasHero(userid,'Goku'):
+        return
     player = playerlib.getPlayer(userid)          
     if not player.isdead:
         gamethread.cancelDelayed(check_nade)
         check_nade()
+     
     
 def check_nade():
     for userid in es.getUseridList():

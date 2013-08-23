@@ -22,16 +22,23 @@ def player_spawn(ev):
     if not superhero.hasHero(userid,'Wolverine'):
         return
     auto_heal()
+
+def selected():
+    userid = es.getcmduserid()
+    if not superhero.hasHero(userid,'Wolverine'):
+        return
+    player = playerlib.getPlayer(userid)
+    if int(player.isdead) != 1:
+        auto_heal()
     
 def auto_heal():
     for userid in es.getUseridList():
         if not es.exists('userid',userid):
             return
-        if not superhero.hasHero(userid,'Wolverine'):
-            return
-        player = playerlib.getPlayer(userid)
-        if not playerlib.getPlayer(userid).isdead:
-            health = player.health
-            if health < 100:
-                player.health = health + 1
+        if superhero.hasHero(userid,'Wolverine'):
+            player = playerlib.getPlayer(userid)
+            if not playerlib.getPlayer(userid).isdead:
+                health = player.health
+                if health < 100:
+                    player.health = health + 1
     gamethread.delayedname(1, auto_heal, auto_heal)

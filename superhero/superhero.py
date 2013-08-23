@@ -69,7 +69,8 @@ cursor.execute(
     'connected INTEGER DEFAULT "0")')
 
 def load():
-    es.dbgmsg(0, "[SH] Loading.....") 
+    es.dbgmsg(0, "[SH] Loading.....")
+    es.doblock('corelib/noisy_on')
     config.execute() # Executes the .cfg to register changes   
     global popup_language
     popup_language = es.ServerVar('popup_language')
@@ -126,15 +127,13 @@ def load():
     cmdlib.registerClientCommand('-power2', poweroff, "-power2")
     cmdlib.registerClientCommand('+power3', power, "+power3")
     cmdlib.registerClientCommand('-power3', poweroff, "-power3")
-    es.doblock('corelib/noisy_on')      
-    print "[SH] Loading done."
+    es.dbgmsg(0, "[SH] Loading Done.") 
     
 def unload():
-    print "[SH] Unloading..."
+    es.dbgmsg(0, "[SH] UnLoading...")
+    es.doblock('corelib/noisy_off')
     es.unload('superhero/heroes')
     es.unload('superhero/admins')
-    es.doblock('corelib/noisy_off')
-    print "[SH] Unloading done."
     helpbox.delete()
     commandlist.delete()
     cmdlib.unregisterSayCommand('/myheroes')
@@ -157,16 +156,11 @@ def unload():
     cmdlib.unregisterClientCommand('-power3')
     connection.commit() # Commit changes to table
     connection.close() # Close our connection
+    es.dbgmsg(0, "[SH] Unloading Done.") 
 
-def es_map_start(ev):
-    es.ServerVar('sh_version', info['version'], 'Superhero Mod').makepublic()
-    es.delayed(1,'es_xdoblock superhero/setVersion')
+def es_map_start(ev):
+    es.ServerVar('sh_version', info['version'], 'Superhero Mod').makepublic()
     es.server.cmd('es_xset sh_version %s' % info['version'])
-
-def setVersion():
-    es.ServerVar('sh_version', info['version'], 'Superhero Mod').makepublic()
-    es.server.cmd('es_xset sh_version %s' % info['version'])
-    es.delayed(5,'es_xdoblock superhero/setVersion')
 
 def getID(userid):
     steamid = es.getplayersteamid(userid)

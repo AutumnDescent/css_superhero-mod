@@ -18,6 +18,13 @@ def player_spawn(ev):
     gamethread.cancelDelayed(beacon)
     beacon(userid)
 
+def selected():
+    userid = es.getcmduserid()
+    if not superhero.hasHero(userid,'Daredevil'):
+        return
+    gamethread.cancelDelayed(beacon)
+    beacon(userid)
+
 def beacon(userid):
     for player in playerlib.getPlayerList('#alive'):
         if player.team == 2:

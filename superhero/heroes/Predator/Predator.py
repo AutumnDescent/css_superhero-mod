@@ -16,19 +16,16 @@ def player_spawn(ev):
 def giveDeagle(userid):
    for x in xrange(7): # CSS players can have up to 7 weapons
       handle = es.getplayerprop(userid, 'CBaseCombatCharacter.m_hMyWeapons.%03d' % x)
-      if handle > 0: # Is this a valid handle?
+      if handle > 0:
          index = es.getindexfromhandle(handle)
          weapon = weaponlib.getWeapon(es.entitygetvalue(index, 'classname'))
-         # Is this a secondary weapon?
          if weapon is not None and 'secondary' in weapon.tags:
-            # Do we already have the correct weapon?
             if weapon != 'weapon_deagle':
-               # We'll use this name to remove the weapon
                es.entitysetvalue(index, 'targetname', 'kill_me')
-               es.server.insertcmd('es_xfire %(userid)s kill_me Kill;' # Remove the weapon
-                                   'es_xgive %(userid)s weapon_deagle' % # Give a deagle
+               es.server.insertcmd('es_xfire %(userid)s kill_me Kill;'
+                                   'es_xgive %(userid)s weapon_deagle' % 
                                    {'userid': userid})
-            break # We found the player's secondary weapon so we're done
+            break
   
 def player_hurt(ev):
     userid = ev['userid']

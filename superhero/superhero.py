@@ -1,5 +1,5 @@
 ##########################################
-# Superhero Mod                          #
+# Superhero Source Mod                   #
 #                                        #
 # By: NeoSan  & Hashed                   #
 #                                        #
@@ -7,6 +7,8 @@
 # for the latest mod                     #
 #                                        #
 # Latest Version: 0.3.5.4                #
+#                                        #
+# Original Script by Icetouch & Mordavolt#  
 ##########################################
 import os
 import cmdlib
@@ -29,8 +31,8 @@ other_msg = langlib.Strings(addonpath.joinpath('languages', 'other_msg.ini'))
 Users = {}
 info = es.AddonInfo()
 info['name'] = "Superhero" 
-info['version'] = "0.3.4.8"
-info['author'] = "NeoSan" 
+info['version'] = "0.3.5.4"
+info['author'] = "NeoSan, Hashed" 
 info['url'] = "http://forums.eventscripts.com"
 info['basename'] = "superhero"
 info['description'] = "Superhero Source Mod"
@@ -178,7 +180,7 @@ def player_activate(ev):
 
 def player_spawn(ev):
     userid = ev['userid']
-    steamid = es.getplayersteamid(userid)
+    steamid = ev['es_steamid']
     if steamid == 'BOT':
         return
     player = playerlib.getPlayer(userid)
@@ -190,7 +192,6 @@ def player_spawn(ev):
             return
         es.tell(userid,'#multi',spawn_msg('spawn_cmdlist',lang=str(popup_language)))
         showxp(userid, None)
-        es.tell(userid,'#multi',spawn_msg('spawn_latest',lang=str(popup_language)))
         if int(es.ServerVar('start_level')) > 0:
             if pid != steamid:
                 return
@@ -419,7 +420,7 @@ def showmenu_selection(userid,choice,popupname):
             es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
             if int(punspent) > 0:
                 showmenu()
-            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(choice)+'/selected') #RYANS MOD
+            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(choice)+'/selected')
             connection.commit()
             return
         if req_level <= level:
@@ -428,7 +429,7 @@ def showmenu_selection(userid,choice,popupname):
             tokens = {}
             tokens['choice'] = choice
             es.tell(userid,'#multi',showmenu_msg('showmenu_picked',tokens,lang=str(popup_language)))
-            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(choice)+'/selected') #RYANS MOD
+            es.server.queuecmd('es_xdoblock superhero/heroes/'+str(choice)+'/selected')
             if ppowerx != '0':
                 tokens = {}
                 tokens['powerx'] = '+'+ppowerx
@@ -481,6 +482,7 @@ def drop(userid, args):
                 string = string+','+str(hero)
         cursor.execute('UPDATE users SET heroes=? WHERE id=?', (string,steamid))
         cursor.execute('UPDATE users SET unspent=(unspent + 1) WHERE id=?', (steamid,))
+        connection.commit()
         if int(text('power')) == 1:
             if ppower1 == heroname:
                 cursor.execute('UPDATE users SET power1=\'0\' WHERE id=?', (steamid,))

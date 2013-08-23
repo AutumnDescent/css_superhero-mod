@@ -1,6 +1,7 @@
 import es
 import playerlib
 import popuplib
+import cmdlib
 import psyco
 import langlib
 import random
@@ -30,11 +31,16 @@ def load():
                     sh_admins.append(line)
                     print "[SH] %s is now a Superhero Admin" % line 
     es.dbgmsg(0, "[SH] Admins Loaded")   
-    if not es.exists('saycommand', '/sh_admin'):
-        es.regsaycmd('/sh_admin', 'superhero/admins/sh_admin')
-       
+    cmdlib.registerSayCommand('/sh_admin', sh_admin, 'sh_admin')
+    cmdlib.registerSayCommand('/shadmin', sh_admin, 'shadmin')
 
-def sh_admin():
+def unload():
+    cmdlib.unregisterSayCommand('/sh_admin')
+    cmdlib.unregisterSayCommand('/shadmin')
+    connection.commit()
+    connection.close()
+
+def sh_admin(userid, args):
     userid = str(es.getcmduserid())
     steamid = str(es.getplayersteamid(userid))
     if steamid in sh_admins:

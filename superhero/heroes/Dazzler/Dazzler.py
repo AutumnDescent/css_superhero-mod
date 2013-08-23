@@ -31,13 +31,10 @@ def selected():
 def power():
     global gusers
     userid = str(es.getcmduserid())
-    steamid = es.getplayersteamid(userid)
     if not es.exists('userid',userid):
         return
     player = playerlib.getPlayer(userid)
     if int(player.isdead) != 1:
-        if steamid == 'BOT':
-            return
         if int(time.time()) >= int(gusers[userid]['dazzle']):
             nearPlayers = player.getNearPlayers(750)
             counter = 0
@@ -46,9 +43,9 @@ def power():
                     fade(dude, 1, 1, 2.5, 255, 255, 255, 255)
                     es.tell(dude,'#multi','#green[SH]#lightgreen You have been Dazzled by#green',es.getplayername(userid))
                     counter += 1
-            fade(userid, 1, 1, 2.5, 255, 255, 255, 255)
+            fade(userid, 1, 0.1, 0.1, 255, 255, 255, 255)
             es.tell(userid,'#multi','#green[SH]#lightgreenYou dazzled #green',counter,'#lightgreenPlayers')
-            gusers[userid]['dazzle'] = int(time.time()) + 15
+            gusers[userid]['dazzle'] = int(time.time()) + 30
         else:
             es.tell(userid,'#multi','#green[SH]#lightgreen Cannot activate #greenDazzler#lightgreen, you have to wait#green',int(gusers[userid]['dazzle'])-int(time.time()),'#lightgreenmore seconds')
         

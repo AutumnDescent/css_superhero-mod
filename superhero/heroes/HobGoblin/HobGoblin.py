@@ -34,7 +34,7 @@ def player_spawn(ev):
 
 def selected():
     userid = es.getcmduserid()
-    if not superhero.hasHero(userid,'Goku'):
+    if not superhero.hasHero(userid,'HobGoblin'):
         return
     player = playerlib.getPlayer(userid)          
     if not player.isdead:

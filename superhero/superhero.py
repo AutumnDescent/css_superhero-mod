@@ -6,7 +6,7 @@
 # Visit http://forums.eventscripts.com   #
 # for the latest mod                     #
 #                                        #
-# Latest Version: 0.3.5.4                #
+# Latest Version: 0.3.5.5                #
 #                                        #
 # Original Script by Icetouch & Mordavolt#  
 ##########################################
@@ -31,7 +31,7 @@ other_msg = langlib.Strings(addonpath.joinpath('languages', 'other_msg.ini'))
 Users = {}
 info = es.AddonInfo()
 info['name'] = "Superhero" 
-info['version'] = "0.3.5.4"
+info['version'] = "0.3.5.5"
 info['author'] = "NeoSan, Hashed" 
 info['url'] = "http://forums.eventscripts.com"
 info['basename'] = "superhero"
@@ -187,8 +187,6 @@ def player_spawn(ev):
         es.tell(userid,'#multi',spawn_msg('spawn_cmdlist',lang=str(popup_language)))
         showxp(userid, None)
         if int(es.ServerVar('start_level')) > 0:
-            if pid != steamid:
-                return
             if int(plevel) == 0:
                 es.tell(userid,'#multi',spawn_msg('spawn_startlevel',lang=str(popup_language)))
                 sh_levelup(userid,int(es.ServerVar('start_level')))

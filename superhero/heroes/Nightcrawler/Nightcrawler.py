@@ -8,6 +8,8 @@ superhero = es.import_addon('superhero')
 round_ended = 0
 global gusers
 gusers = {}
+import psyco
+psyco.full()
 
 def load():
     es.set('sv_noclipspeed',1.0)
@@ -31,6 +33,7 @@ def player_spawn(ev):
     if not superhero.hasHero(ev['userid'],'Nightcrawler'):
         return
     gusers[userid] = {}
+    gusers[userid]['crawl'] = 0
     gusers[ev['userid']]['nc_cooldown'] = int(time.time())
 
 def selected():
@@ -42,6 +45,7 @@ def selected():
     if not superhero.hasHero(userid,'Nightcrawler'):
         return
     gusers[userid] = {}
+    gusers[userid]['crawl'] = 0
     gusers[userid]['nc_cooldown'] = int(time.time())
 
     
@@ -50,8 +54,7 @@ def power():
     userid = str(es.getcmduserid())
     if not es.exists('userid',userid):
         return
-    player = playerlib.getPlayer(userid)
-    if int(player.isdead) != 1:
+    for player in playerlib.getPlayerList('#alive'):
         if int(time.time()) >= int(gusers[userid]['nc_cooldown']):
             es.server.queuecmd('es_xsetplayerprop %s "CBaseEntity.movetype" 8' % userid)
             if not 'speed' in gusers[userid]: 
@@ -80,19 +83,17 @@ def power():
 def speed_set(userid):
     global gusers
     userid = str(userid)
-    if not es.exists('userid',userid):
-        return
-    if int(gusers[str(userid)]['crawl']) != 0:
-        player = playerlib.getPlayer(userid)
-        player.set("speed", 1.0)
-        gamethread.delayed(0.2,speed_set,userid)
+    for player in playerlib.getPlayerList('#alive'):
+        if gusers[userid]['crawl'] != 0:
+            player.set("speed", 1.0)
+            gamethread.delayed(0.2,speed_set,userid)
               
                     
 def undo(player):
+    global gusers
     userid = str(es.getcmduserid())
     if not es.exists('userid',userid):
         return
-    global gusers
     player = playerlib.getPlayer(player.userid)
     es.centertell(player.userid,'Noclip deactivated')
     gusers[str(player.userid)]['crawl'] = 0
@@ -110,18 +111,16 @@ def check_stuck(player):
     if not es.exists('userid',userid):
         return
     global gusers
-    global round_ended
-    if round_ended != 1:
-        on_ground = int(gusers[str(player.userid)]['on_ground'])
-        if on_ground != 8:
-            if player.onground != 1:
-                es.centertell(player.userid,'You are not on the ground, probably stuck, will slay you soon!')
-                gusers[str(player.userid)]['on_ground'] = on_ground + 1
-                gamethread.delayed(0.5,check_stuck,(player))
-            else:
-                return
+    on_ground = int(gusers[str(player.userid)]['on_ground'])
+    if on_ground != 8:
+        if player.onground != 1:
+            es.centertell(player.userid,'You are not on the ground, probably stuck, will slay you soon!')
+            gusers[str(player.userid)]['on_ground'] = on_ground + 1
+            gamethread.delayed(0.5,check_stuck,(player))
         else:
-            es.server.queuecmd('damage %s 999 1024' % player.userid)
+            return
+    else:
+        es.server.queuecmd('damage %s 999 1024' % player.userid)
             
 def fade(users, type, fadetime, totaltime, r, g, b, a):
     t = int(type)

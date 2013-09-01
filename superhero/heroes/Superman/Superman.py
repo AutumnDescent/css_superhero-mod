@@ -2,6 +2,8 @@ import es
 import playerlib
 import gamethread
 superhero = es.import_addon('superhero')
+import psyco
+psyco.full()
 
 def load():
     es.dbgmsg(0, "[SH] Successfully loaded Superman")
@@ -14,8 +16,7 @@ def player_spawn(ev):
     userid = ev['userid']
     if not superhero.hasHero(userid,'Superman'):
         return
-    player = playerlib.getPlayer(userid)
-    if not playerlib.getPlayer(userid).isdead:
+    for player in playerlib.getPlayerList('#alive'):
         health = player.health
         player.health = health + 75
         armor = player.armor
@@ -32,8 +33,6 @@ def shfilter(userid, args):
   
 def player_jump(ev):
     userid = ev['userid']
-    superhero = es.import_addon('superhero')
-    if superhero.hasHero(userid,'Superman'): 
-        es.server.queuecmd('es_xfire %s !self addoutput "gravity 0.6"' % ev['userid'])
-    else:
-        es.server.queuecmd('es_xfire %s !self addoutput "gravity 1"' % ev['userid'])
+    if not superhero.hasHero(userid,'Superman'):
+        return
+    es.server.queuecmd('es_xfire %s !self addoutput "gravity 0.6"' % ev['userid'])

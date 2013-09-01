@@ -4,6 +4,10 @@ import usermsg
 import gamethread
 import random
 superhero = es.import_addon('superhero')
+import psyco
+psyco.full()
+delayname = 'sh_wolverine_%s'
+WOLVERINE_DELAY = 0.7
 
 def load():
     es.dbgmsg(0, "[SH] Successfully loaded Wolverine")
@@ -17,28 +21,31 @@ def es_map_start(ev):
 def round_end(ev):
     gamethread.cancelDelayed(auto_heal)
 
+def player_disconnect(ev):
+    userid = ev['userid']
+    gamethread.cancelDelayed(delayname % ev['userid'])
+
 def player_spawn(ev):
     userid = ev['userid']
     if not superhero.hasHero(userid,'Wolverine'):
         return
-    auto_heal()
+    gamethread.cancelDelayed(delayname % ev['userid'])
+    auto_heal(userid)
 
 def selected():
     userid = es.getcmduserid()
     if not superhero.hasHero(userid,'Wolverine'):
         return
     player = playerlib.getPlayer(userid)
-    if int(player.isdead) != 1:
-        auto_heal()
+    if not player.isdead:
+        auto_heal(userid)
     
-def auto_heal():
+def auto_heal(userid):
     for userid in es.getUseridList():
-        if not es.exists('userid',userid):
+        if not superhero.hasHero(userid,'Wolverine'):
             return
-        if superhero.hasHero(userid,'Wolverine'):
-            player = playerlib.getPlayer(userid)
-            if not playerlib.getPlayer(userid).isdead:
-                health = player.health
-                if health < 100:
-                    player.health = health + 1
-    gamethread.delayedname(1, auto_heal, auto_heal)
+        for player in playerlib.getPlayerList('#alive'):
+            health = player.health
+            if health < 100:
+                player.health = health + 1
+            gamethread.delayedname(WOLVERINE_DELAY, delayname % player, auto_heal, player)

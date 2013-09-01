@@ -21,8 +21,6 @@ def selected():
     global gusers
     userid = es.getcmduserid()
     userid = str(userid)
-    if not es.exists('userid',userid):
-        return
     if not superhero.hasHero(userid,'Dazzler'):
         return
     gusers[userid] = {}
@@ -33,8 +31,7 @@ def power():
     userid = str(es.getcmduserid())
     if not es.exists('userid',userid):
         return
-    player = playerlib.getPlayer(userid)
-    if int(player.isdead) != 1:
+    for player in playerlib.getPlayerList('#alive'):
         if int(time.time()) >= int(gusers[userid]['dazzle']):
             nearPlayers = player.getNearPlayers(750)
             counter = 0

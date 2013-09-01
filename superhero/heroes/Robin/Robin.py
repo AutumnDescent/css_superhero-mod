@@ -8,14 +8,9 @@ def load():
 
 def player_spawn(ev):
     userid = ev['userid']
-    if not es.exists('userid',userid):
-        return
-    player = playerlib.getPlayer(userid)
-    if not playerlib.getPlayer(userid).isdead:
+    for player in playerlib.getPlayerList('#alive'):
         if not superhero.hasHero(userid,'Robin'):
             return
-        if player.he == 0:
-	    gamethread.delayed(0.01, es.server.queuecmd, 'es_xgive %s weapon_hegrenade'%userid)
 	if player.fb == 0:
             gamethread.delayed(0.01, es.server.queuecmd, 'es_xgive %s weapon_flashbang'%userid)
 	    gamethread.delayed(0.01, es.server.queuecmd, 'es_xgive %s weapon_flashbang'%userid)

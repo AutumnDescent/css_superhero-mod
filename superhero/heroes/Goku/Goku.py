@@ -1,11 +1,16 @@
 import es
 import random
 import playerlib
+from playerlib import getPlayer, UseridError
 import gamethread
 import random
 superhero = es.import_addon('superhero')
 global gusers
 gusers = {}
+import psyco
+psyco.full()
+delayname = 'sh_goku_%s'
+KI_REGEN_DELAY = 1.0
 
 def load():
     es.dbgmsg(0, "[SH] Successfully loaded Goku")
@@ -18,10 +23,10 @@ def es_map_start(ev):
 
 def player_spawn(ev):
     global gusers
-    userid = ev['userid']
+    userid = int(ev['userid'])
     if not superhero.hasHero(userid,'Goku'):
         return
-    gamethread.cancelDelayed(KI_regen)
+    gamethread.cancelDelayed(delayname % ev['userid'])
     player = playerlib.getPlayer(userid)
     player.armor = 100
     KI_regen(userid)
@@ -31,34 +36,30 @@ def player_death(ev):
     userid = ev['userid']
     if not superhero.hasHero(userid,'Goku'):
         return
-    gamethread.cancelDelayed(KI_regen)
+    gamethread.cancelDelayed(delayname % ev['userid'])
 
 def round_end(ev):
-    global gusers
-    userid = ev['userid']
-    if not superhero.hasHero(userid,'Goku'):
-        return
     gamethread.cancelDelayed(KI_regen)
+
+def player_disconnect(ev):
+    userid = ev['userid']
+    gamethread.cancelDelayed(delayname % ev['userid'])
         
 def selected():
     global gusers
     userid = es.getcmduserid()
-    if not superhero.hasHero(userid,'Goku'):
-        return
-    gusers[userid] = {}
-    gusers[userid]['LVL'] = 0
-    gamethread.cancelDelayed(KI_regen)
-    player = playerlib.getPlayer(userid)
-    player.armor = 100
-    KI_regen(userid)
+    for player in playerlib.getPlayerList('#alive'):
+        if not superhero.hasHero(player,'Goku'):
+            return
+        gusers[userid] = {}
+        gusers[userid]['LVL'] = 0
+        player.armor = 100
+        KI_regen(userid)
 
 def power():
     global gusers
     userid = str(es.getcmduserid())
-    if not es.exists('userid',userid):
-        return
-    player = playerlib.getPlayer(userid)
-    if int(player.isdead) != 1:
+    for player in playerlib.getPlayerList('#alive'):
         if gusers[userid]['LVL'] == 0:
             es.tell(userid, '#multi', '#green[SH]#lightgreen Cant release KI, you have to be at least 1 lvl')
         elif gusers[userid]['LVL'] == 1:
@@ -98,12 +99,9 @@ def power():
 def KI_regen(userid):
     global gusers
     userid = str(userid)
-    if not es.exists('userid',userid):
-        return
     if not superhero.hasHero(userid, 'Goku'):
         return
-    player = playerlib.getPlayer(userid)
-    if int(player.isdead) != 1:
+    for player in playerlib.getPlayerList('#alive'):
         gusers[userid] = {}
         gusers[userid]['GokuJump'] = 1.0
         if player.armor < 450:
@@ -123,7 +121,7 @@ def KI_regen(userid):
         elif player.armor > 375:
             hsay(userid, 'Your LVL is 4!\nKI = %i'%player.armor)
             gusers[userid]['LVL'] = 4
-    gamethread.delayedname(1, KI_regen, KI_regen, userid)
+        gamethread.delayedname(KI_REGEN_DELAY, delayname % player, KI_regen, player)
                                                 
 def hsay(userid, text):
     es.usermsg("create", "hudhint", "HintText")
@@ -144,6 +142,8 @@ def setgravity(userid, ratio):
         
 def endmessage(userid):
     userid = str(userid)
+    if not es.exists('userid',userid):
+        return
     es.tell(userid, '#multi', '#green[SH]#lightgreen You are back to normal')
     player = playerlib.getPlayer(userid)
     if superhero.hasHero(userid,'Flash'):
@@ -151,7 +151,8 @@ def endmessage(userid):
     else:
         return
     
-def player_jump(ev):
-    userid = ev['userid']
-    if superhero.hasHero(userid,'Goku'):
-        es.server.cmd('es_xfire %s %s addoutput "Gravity %s"' % (userid,'!self', gusers[userid]['GokuJump']))
+#def player_jump(ev):
+    #userid = ev['userid']
+    #if not superhero.hasHero(userid,'Goku'):
+        #return
+    #es.server.cmd('es_xfire %s %s addoutput "Gravity %s"' % (userid,'!self', gusers[userid]['GokuJump']))

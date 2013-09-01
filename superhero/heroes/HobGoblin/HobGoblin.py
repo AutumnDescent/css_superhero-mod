@@ -8,6 +8,8 @@ import time
 import random
 import gamethread
 from random import randint
+import psyco
+psyco.full()
 superhero = es.import_addon('superhero')
 
 def load():
@@ -20,9 +22,6 @@ def es_map_start(ev):
     gamethread.cancelDelayed(check_nade)
 
 def round_end(ev):
-    userid = ev['userid']
-    if not superhero.hasHero(userid,'HobGoblin'):
-        return
     gamethread.cancelDelayed(check_nade)
 
 def player_spawn(ev):
@@ -30,32 +29,25 @@ def player_spawn(ev):
     if not superhero.hasHero(userid,'HobGoblin'):
         return
     gamethread.cancelDelayed(check_nade)
-    check_nade()
+    check_nade(userid)
 
 def selected():
     userid = es.getcmduserid()
     if not superhero.hasHero(userid,'HobGoblin'):
         return
-    player = playerlib.getPlayer(userid)          
-    if not player.isdead:
-        gamethread.cancelDelayed(check_nade)
-        check_nade()
+    for player in playerlib.getPlayerList('#alive'):
+        check_nade(userid)
      
     
-def check_nade():
+def check_nade(userid):
     for userid in es.getUseridList():
         rand = random.randint(5,15)
-        if not es.exists('userid',userid):
-            return
-        if not superhero.hasHero(userid,'HobGoblin'):
-            return
-        player = playerlib.getPlayer(userid)          
-        if not player.isdead:
+        for player in playerlib.getPlayerList('#alive'):
             if int(es.getplayerprop(userid, "CBasePlayer.localdata.m_iAmmo.011")) != 1:
                 gamethread.delayed(2, es.server.queuecmd, 'es_xgive %s weapon_hegrenade' % userid)
             else:
                 return
-            es.delayed(rand,'es_xdoblock superhero/heroes/HobGoblin/check_nade')
+            gamethread.delayedname(rand, check_nade, check_nade, userid)
     
 def player_hurt(ev):
     userid = ev['userid']

@@ -30,8 +30,7 @@ def power():
     userid = str(es.getcmduserid())
     if not es.exists('userid',userid):
         return
-    player = playerlib.getPlayer(userid)
-    if int(player.isdead) != 1:
+    for player in playerlib.getPlayerList('#alive'):
 	if int(time.time()) >= int(gusers[userid]['my_cooldown']):
 		gusers[userid]['my_cooldown'] = int(time.time()) + 3
 		RandSkin = random.randint(1, 4)

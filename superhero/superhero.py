@@ -6,7 +6,7 @@
 # Visit http://forums.eventscripts.com   #
 # for the latest mod                     #
 #                                        #
-# Latest Version: 0.3.5.5                #
+# Latest Version: 0.3.5.4                #
 #                                        #
 # Original Script by Icetouch & Mordavolt#  
 ##########################################
@@ -25,13 +25,14 @@ from sqlite3 import connect
 from path import path
 from array import array
 addonpath = path(__file__).dirname()
-connection = connect(addonpath.joinpath('Userdata/xp.db')) # Connect to database
+dbpath = path(__file__).dirname().joinpath('Userdata/xp.db')
+connection = connect(dbpath)
 cursor = connection.cursor() # Cursor to execute commands
 other_msg = langlib.Strings(addonpath.joinpath('languages', 'other_msg.ini'))
 Users = {}
 info = es.AddonInfo()
 info['name'] = "Superhero" 
-info['version'] = "0.3.5.5"
+info['version'] = "0.3.5.4"
 info['author'] = "NeoSan, Hashed" 
 info['url'] = "http://forums.eventscripts.com"
 info['basename'] = "superhero"
@@ -179,15 +180,17 @@ def player_spawn(ev):
     steamid = ev['es_steamid']
     if steamid == 'BOT':
         return
-    spawn_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/spawn_msg.ini')
-    global popup_language
-    pid, plevel, pxp, punspent = cursor.execute('SELECT id, level, xp, unspent FROM users WHERE id=?', (steamid,)).fetchone()
-    es.tell(userid,'#multi',spawn_msg('spawn_cmdlist',lang=str(popup_language)))
-    es.server.cmd('es_sexec %s say /showxp' % userid)
-    if int(es.ServerVar('start_level')) > 0:
-        if int(plevel) == 0:
-            es.tell(userid,'#multi',spawn_msg('spawn_startlevel',lang=str(popup_language)))
-            sh_levelup(userid,int(es.ServerVar('start_level')))
+    player = playerlib.getPlayer(userid)
+    if int(player.isdead) != 1:
+        spawn_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/spawn_msg.ini')
+        global popup_language
+        pid, plevel = cursor.execute('SELECT id, level FROM users WHERE id=?', (steamid,)).fetchone()
+        es.tell(userid,'#multi',spawn_msg('spawn_cmdlist',lang=str(popup_language)))
+        es.server.queuecmd('es_sexec %s say /showxp' % userid)
+        if int(es.ServerVar('start_level')) > 0:
+            if int(plevel) == 0:
+                es.tell(userid,'#multi',spawn_msg('spawn_startlevel',lang=str(popup_language)))
+                sh_levelup(userid,int(es.ServerVar('start_level')))
 
 def bomb_planted(ev):
     userid = ev['userid']
@@ -288,7 +291,7 @@ def sh_givexp(userid,amount,reason):
         tokens = {}
         tokens['amount'] = amount
         es.tell(userid,'#multi',xp_msg('xp_gain',tokens,lang=str(popup_language)),reason)
-        es.server.cmd('es_sexec %s say /showxp' % userid)
+        es.server.queuecmd('es_sexec %s say /showxp' % userid)
         connection.commit()
         
 def sh_levelup(userid,amount):
@@ -302,7 +305,7 @@ def sh_levelup(userid,amount):
     xp_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/xp_msg.ini')
     global popup_language
     es.tell(userid,'#multi',xp_msg('xp_levelup',lang=str(popup_language)))
-    es.server.cmd('es_sexec %s say /showxp' % userid)
+    es.server.queuecmd('es_sexec %s say /showxp' % userid)
     connection.commit()
 
 def map_end(ev):

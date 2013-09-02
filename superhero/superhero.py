@@ -158,8 +158,10 @@ def unload():
     connection.close() # Close our connection
     es.dbgmsg(0, "[SH] Unloading Done.") 
 
-def es_map_start(ev):
-    es.ServerVar('sh_version', info['version'], 'Superhero Mod').makepublic()
+def es_map_start(ev):
+
+    es.ServerVar('sh_version', info['version'], 'Superhero Mod').makepublic()
+
     es.server.cmd('es_xset sh_version %s' % info['version'])
 
 def getID(userid):
@@ -177,19 +179,15 @@ def player_spawn(ev):
     steamid = ev['es_steamid']
     if steamid == 'BOT':
         return
-    player = playerlib.getPlayer(userid)
-    if int(player.isdead) != 1:
-        spawn_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/spawn_msg.ini')
-        global popup_language
-        pid, plevel = cursor.execute('SELECT id, level FROM users WHERE id=?', (steamid,)).fetchone()
-        if pid != steamid:
-            return
-        es.tell(userid,'#multi',spawn_msg('spawn_cmdlist',lang=str(popup_language)))
-        showxp(userid, None)
-        if int(es.ServerVar('start_level')) > 0:
-            if int(plevel) == 0:
-                es.tell(userid,'#multi',spawn_msg('spawn_startlevel',lang=str(popup_language)))
-                sh_levelup(userid,int(es.ServerVar('start_level')))
+    spawn_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/spawn_msg.ini')
+    global popup_language
+    pid, plevel, pxp, punspent = cursor.execute('SELECT id, level, xp, unspent FROM users WHERE id=?', (steamid,)).fetchone()
+    es.tell(userid,'#multi',spawn_msg('spawn_cmdlist',lang=str(popup_language)))
+    es.server.cmd('es_sexec %s say /showxp' % userid)
+    if int(es.ServerVar('start_level')) > 0:
+        if int(plevel) == 0:
+            es.tell(userid,'#multi',spawn_msg('spawn_startlevel',lang=str(popup_language)))
+            sh_levelup(userid,int(es.ServerVar('start_level')))
 
 def bomb_planted(ev):
     userid = ev['userid']
@@ -290,7 +288,7 @@ def sh_givexp(userid,amount,reason):
         tokens = {}
         tokens['amount'] = amount
         es.tell(userid,'#multi',xp_msg('xp_gain',tokens,lang=str(popup_language)),reason)
-        showxp(userid, None)
+        es.server.cmd('es_sexec %s say /showxp' % userid)
         connection.commit()
         
 def sh_levelup(userid,amount):
@@ -304,7 +302,7 @@ def sh_levelup(userid,amount):
     xp_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/xp_msg.ini')
     global popup_language
     es.tell(userid,'#multi',xp_msg('xp_levelup',lang=str(popup_language)))
-    showxp(userid, None)
+    es.server.cmd('es_sexec %s say /showxp' % userid)
     connection.commit()
 
 def map_end(ev):

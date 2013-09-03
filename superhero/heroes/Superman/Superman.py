@@ -16,7 +16,8 @@ def player_spawn(ev):
     userid = ev['userid']
     if not superhero.hasHero(userid,'Superman'):
         return
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         health = player.health
         player.health = health + 75
         armor = player.armor

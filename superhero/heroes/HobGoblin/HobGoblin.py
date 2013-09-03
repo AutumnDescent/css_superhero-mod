@@ -11,6 +11,9 @@ from random import randint
 import psyco
 psyco.full()
 superhero = es.import_addon('superhero')
+rand = random.randint(5,15)
+delayname = 'sh_hobgob_%s'
+GOBHE_DELAY = rand
 
 def load():
     es.dbgmsg(0, "[SH] Successfully loaded HobGoblin")
@@ -19,35 +22,40 @@ def unload():
     gamethread.cancelDelayed(check_nade)
 
 def es_map_start(ev):
-    gamethread.cancelDelayed(check_nade)
+    userid = ev['userid']
+    gamethread.cancelDelayed(delayname % ev['userid'])
 
 def round_end(ev):
-    gamethread.cancelDelayed(check_nade)
+    userid = ev['userid']
+    gamethread.cancelDelayed(delayname % ev['userid'])
+
+def player_disconnect(ev):
+    userid = ev['userid']
+    gamethread.cancelDelayed(delayname % ev['userid'])
 
 def player_spawn(ev):
     userid = ev['userid']
     if not superhero.hasHero(userid,'HobGoblin'):
         return
-    gamethread.cancelDelayed(check_nade)
+    gamethread.cancelDelayed(delayname % ev['userid'])
     check_nade(userid)
 
 def selected():
     userid = es.getcmduserid()
     if not superhero.hasHero(userid,'HobGoblin'):
         return
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         check_nade(userid)
-     
     
 def check_nade(userid):
-    for userid in es.getUseridList():
-        rand = random.randint(5,15)
-        for player in playerlib.getPlayerList('#alive'):
-            if int(es.getplayerprop(userid, "CBasePlayer.localdata.m_iAmmo.011")) != 1:
-                gamethread.delayed(2, es.server.queuecmd, 'es_xgive %s weapon_hegrenade' % userid)
-            else:
-                return
-            gamethread.delayedname(rand, check_nade, check_nade, userid)
+    userid = str(userid)
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
+        if int(es.getplayerprop(userid, "CBasePlayer.localdata.m_iAmmo.011")) != 1:
+            gamethread.delayed(0.1, es.server.cmd, 'es_xgive %s weapon_hegrenade' % userid)
+        gamethread.cancelDelayed(delayname % player)
+        gamethread.delayedname(GOBHE_DELAY, delayname % player, check_nade, player)
     
 def player_hurt(ev):
     userid = ev['userid']

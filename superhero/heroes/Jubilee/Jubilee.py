@@ -15,7 +15,8 @@ def unload():
             
 def power():
     userid = str(es.getcmduserid())
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         if jub[userid] < MAX_POW:
             es.tell(userid, '#multi', '#green[SH]#lightgreen Jubilee pink shades now protect you from flashbangs')
             fade(userid, 0, 5, 5, 64, 0, 64, 130)

@@ -41,11 +41,12 @@ def selected():
         auto_heal(userid)
     
 def auto_heal(userid):
-    for userid in es.getUseridList():
-        if not superhero.hasHero(userid,'Wolverine'):
-            return
-        for player in playerlib.getPlayerList('#alive'):
-            health = player.health
-            if health < 100:
-                player.health = health + 1
-            gamethread.delayedname(WOLVERINE_DELAY, delayname % player, auto_heal, player)
+    userid = str(userid)
+    if not superhero.hasHero(userid,'Wolverine'):
+        return
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
+        health = player.health
+        if health < 100:
+            player.health = health + 1
+        gamethread.delayedname(WOLVERINE_DELAY, delayname % player, auto_heal, player)

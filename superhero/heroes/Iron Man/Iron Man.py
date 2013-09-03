@@ -71,7 +71,8 @@ def IronManLoop(player):
 
 def fuel_regen(userid):
     userid = str(userid)
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         value = player.armor = (player.armor + 1) #min(player.armor + 1, 150)
         if value < 150:
             gamethread.delayedname(FUEL_REGEN_DELAY, delayname % player, fuel_regen, player)

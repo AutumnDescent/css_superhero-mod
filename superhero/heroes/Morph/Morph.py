@@ -34,7 +34,8 @@ def power():
     userid = str(es.getcmduserid())
     if not es.exists('userid',userid):
         return
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         if not 'morph_cool' in gusers[userid]:
             gusers[userid]['morph_cool'] = int(time.time()) + 3
         if not 'morph_model' in gusers[userid]:

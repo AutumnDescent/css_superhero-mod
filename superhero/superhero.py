@@ -6,7 +6,7 @@
 # Visit http://forums.eventscripts.com   #
 # for the latest mod                     #
 #                                        #
-# Latest Version: 0.3.5.4                #
+# Latest Version: 0.3.5.5                #
 #                                        #
 # Original Script by Icetouch & Mordavolt#  
 ##########################################
@@ -25,14 +25,13 @@ from sqlite3 import connect
 from path import path
 from array import array
 addonpath = path(__file__).dirname()
-dbpath = path(__file__).dirname().joinpath('Userdata/xp.db')
-connection = connect(dbpath)
+connection = connect(addonpath.joinpath('Userdata/xp.db')) # Connect to database
 cursor = connection.cursor() # Cursor to execute commands
 other_msg = langlib.Strings(addonpath.joinpath('languages', 'other_msg.ini'))
 Users = {}
 info = es.AddonInfo()
 info['name'] = "Superhero" 
-info['version'] = "0.3.5.4"
+info['version'] = "0.3.5.5"
 info['author'] = "NeoSan, Hashed" 
 info['url'] = "http://forums.eventscripts.com"
 info['basename'] = "superhero"
@@ -112,16 +111,16 @@ def load():
     cmdlib.registerSayCommand('/commandlist', 'superhero/commandlist', 'COMMANDLIST')
     cmdlib.registerSayCommand('/shmenu', 'superhero/commandlist', 'SHMENU')
     cmdlib.registerSayCommand('/sh', 'superhero/commandlist', 'SH')
-    cmdlib.registerSayCommand('/help', 'superhero/superherohelp', 'HELP')
-    cmdlib.registerSayCommand('/showmenu', 'superhero/showmenu', 'SHOWMENU')
+    cmdlib.registerSayCommand('/help', superherohelp, 'HELP')
+    cmdlib.registerSayCommand('/showmenu', showmenu, 'SHOWMENU')
     cmdlib.registerSayCommand('/drop', drop, 'DROP')
     cmdlib.registerSayCommand('/showxp', showxp, 'SHOWXP')
-    cmdlib.registerSayCommand('/myheroes', 'superhero/myheroes', 'MYHEROES')
+    cmdlib.registerSayCommand('/myheroes', myheroes, 'MYHEROES')
     cmdlib.registerSayCommand('hashero', 'superhero/hashero', 'HASHERO')
     cmdlib.registerSayCommand('/buyxp', buyxp, 'BUYXP')
-    cmdlib.registerSayCommand('/herolist', 'superhero/herolist', 'HEROLIST')
-    cmdlib.registerSayCommand('/clearpowers', 'superhero/clearpowers', 'CLEARPOWERS')
-    cmdlib.registerSayCommand('/playerinfo', 'superhero/playerinfo', 'PLAYERINFO')
+    cmdlib.registerSayCommand('/herolist', herolist, 'HEROLIST')
+    cmdlib.registerSayCommand('/clearpowers', clearpowers, 'CLEARPOWERS')
+    cmdlib.registerSayCommand('/playerinfo', playerinfo, 'PLAYERINFO')
     cmdlib.registerClientCommand('+power1', power, "+power1")
     cmdlib.registerClientCommand('-power1', poweroff, "-power1")
     cmdlib.registerClientCommand('+power2', power, "+power2")
@@ -159,10 +158,8 @@ def unload():
     connection.close() # Close our connection
     es.dbgmsg(0, "[SH] Unloading Done.") 
 
-def es_map_start(ev):
-
-    es.ServerVar('sh_version', info['version'], 'Superhero Mod').makepublic()
-
+def es_map_start(ev):
+    es.ServerVar('sh_version', info['version'], 'Superhero Mod').makepublic()
     es.server.cmd('es_xset sh_version %s' % info['version'])
 
 def getID(userid):
@@ -186,7 +183,7 @@ def player_spawn(ev):
         global popup_language
         pid, plevel = cursor.execute('SELECT id, level FROM users WHERE id=?', (steamid,)).fetchone()
         es.tell(userid,'#multi',spawn_msg('spawn_cmdlist',lang=str(popup_language)))
-        es.server.queuecmd('es_sexec %s say /showxp' % userid)
+        es.server.cmd('es_xsexec %s say /showxp' % userid)
         if int(es.ServerVar('start_level')) > 0:
             if int(plevel) == 0:
                 es.tell(userid,'#multi',spawn_msg('spawn_startlevel',lang=str(popup_language)))
@@ -291,7 +288,7 @@ def sh_givexp(userid,amount,reason):
         tokens = {}
         tokens['amount'] = amount
         es.tell(userid,'#multi',xp_msg('xp_gain',tokens,lang=str(popup_language)),reason)
-        es.server.queuecmd('es_sexec %s say /showxp' % userid)
+        es.server.cmd('es_xsexec %s say /showxp' % userid)
         connection.commit()
         
 def sh_levelup(userid,amount):
@@ -305,18 +302,17 @@ def sh_levelup(userid,amount):
     xp_msg = langlib.Strings(es.getAddonPath('superhero') + '/languages/xp_msg.ini')
     global popup_language
     es.tell(userid,'#multi',xp_msg('xp_levelup',lang=str(popup_language)))
-    es.server.queuecmd('es_sexec %s say /showxp' % userid)
+    es.server.cmd('es_xsexec %s say /showxp' % userid)
     connection.commit()
 
 def map_end(ev):
-    print "Map End...Saving Players..."
     connection.commit() # Commit changes to table
         
 def round_end(ev):
     connection.commit()
     
-def commandlist():
-    userid = es.getcmduserid()
+def commandlist(userid, args):
+    userid = str(es.getcmduserid())
     #close_popups(userid)
     popuplib.send('commandlist',userid)
     
@@ -335,13 +331,12 @@ def commandlist_selection(userid,choice,name):
             popupname = '/'+str(choice)
             es.sexec(userid,'say',popupname)
     
-def superherohelp():
-    userid = es.getcmduserid()
+def superherohelp(userid, args):
+    userid = str(userid)
     #close_popups(userid)
     popuplib.send('helpbox',userid)
 
-def showmenu():
-    userid = es.getcmduserid()
+def showmenu(userid, args):
     userid = str(userid)
     steamid = es.getplayersteamid(userid)
     if steamid == 'BOT':
@@ -490,8 +485,8 @@ def drop(userid, args):
     else:
         es.tell(userid,'#multi',drop_msg('drop_not',tokens,lang=str(popup_language)))      
         
-def myheroes():
-    userid = str(es.getcmduserid())
+def myheroes(userid, args):
+    userid = str(userid)
     steamid = es.getplayersteamid(userid)
     pid, pheroes, ppower1, ppower2, ppower3 = cursor.execute('SELECT id, heroes, power1, power2, power3 FROM users WHERE id=?', (steamid,)).fetchone()
     heroes = pheroes
@@ -520,8 +515,8 @@ def myheroes_selection(userid,heroname,popupname):
     userid = str(userid)
     es.server.cmd('es_sexec %s say /drop %s' % (userid,heroname))
     
-def herolist():
-    userid = str(es.getcmduserid())
+def herolist(userid, args):
+    userid = str(userid)
     heroes = str(es.ServerVar('herolist'))
     heroes = heroes.split(',')
     herolist = popuplib.easymenu('herolist',None,None)
@@ -535,8 +530,8 @@ def herolist():
     #close_popups(userid)
     popuplib.send('herolist',userid)
     
-def clearpowers():
-    userid = str(es.getcmduserid())
+def clearpowers(userid, args):
+    userid = str(userid)
     steamid = es.getplayersteamid(userid)
     global popup_language
     drop_msg = langlib.Strings(es.getAddonPath("superhero/languages/drop_msg.ini"))
@@ -624,8 +619,8 @@ def playerinfo_list_build():
     if counter == 0:
         playerinfo_list.addoption(None,playerinfo_popup('playerinfo_update',lang=str(popup_language)))
           
-def playerinfo():
-    userid = es.getcmduserid()
+def playerinfo(userid, args):
+    userid = str(userid)
     #close_popups(userid)
     popuplib.send('playerinfo_list',userid)
     

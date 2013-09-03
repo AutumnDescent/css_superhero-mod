@@ -12,20 +12,32 @@ def unload():
     gamethread.cancelDelayed(beacon)
 
 def player_spawn(ev):
-    userid = ev['userid']
+    userid = int(ev['userid'])
     if not superhero.hasHero(userid,'Daredevil'):
         return
-    gamethread.cancelDelayed(beacon)
+    gamethread.cancelDelayed("beacon_%i" % userid)
     beacon(userid)
+
+def es_map_start(ev):
+    gamethread.cancelDelayed(beacon)
+
+def player_disconnect(ev):
+    userid = int(ev['userid'])
+    gamethread.cancelDelayed("beacon_%i" % userid)
+
+def player_death(ev):
+    userid = int(ev['userid'])
+    gamethread.cancelDelayed("beacon_%i" % userid)
 
 def selected():
     userid = es.getcmduserid()
     if not superhero.hasHero(userid,'Daredevil'):
         return
-    gamethread.cancelDelayed(beacon)
+    gamethread.cancelDelayed("beacon_%i" % userid)
     beacon(userid)
 
 def beacon(userid):
+    userid = int(userid)
     for player in playerlib.getPlayerList('#alive'):
         if player.team == 2:
             iRed = 255
@@ -54,4 +66,4 @@ def beacon(userid):
         0.5, # iSpeed
         0, # iFlags
         )
-    gamethread.delayedname(2, beacon, beacon, userid)
+    gamethread.delayedname(2, 'beacon_%i' % userid, beacon, userid)

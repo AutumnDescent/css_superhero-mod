@@ -19,7 +19,6 @@ def unload():
     gamethread.cancelDelayed("undo")
 
 def round_end(ev):
-    global gusers
     global round_ended
     round_ended = 1
     if not superhero.hasHero(ev['userid'],'Nightcrawler'):
@@ -28,7 +27,6 @@ def round_end(ev):
     gusers[ev['userid']]['on_ground'] = 0
 
 def player_spawn(ev):
-    global gusers
     userid = ev['userid']
     if not superhero.hasHero(ev['userid'],'Nightcrawler'):
         return
@@ -37,11 +35,7 @@ def player_spawn(ev):
     gusers[ev['userid']]['nc_cooldown'] = int(time.time())
 
 def selected():
-    global gusers
     userid = es.getcmduserid()
-    userid = str(userid)
-    if not es.exists('userid',userid):
-        return
     if not superhero.hasHero(userid,'Nightcrawler'):
         return
     gusers[userid] = {}
@@ -50,11 +44,9 @@ def selected():
 
     
 def power():
-    global gusers
     userid = str(es.getcmduserid())
-    if not es.exists('userid',userid):
-        return
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         if int(time.time()) >= int(gusers[userid]['nc_cooldown']):
             es.server.queuecmd('es_xsetplayerprop %s "CBaseEntity.movetype" 8' % userid)
             if not 'speed' in gusers[userid]: 
@@ -81,30 +73,28 @@ def power():
             es.tell(userid,'#multi','#green[SH]#lightgreen Cannot activate Nightcrawler #green',int(gusers[userid]['nc_cooldown'])-int(time.time()),'#lightgreenseconds left')
 
 def speed_set(userid):
-    global gusers
     userid = str(userid)
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         if gusers[userid]['crawl'] != 0:
             player.set("speed", 1.0)
             gamethread.delayed(0.2,speed_set,userid)
               
                     
 def undo(player):
-    global gusers
     userid = str(es.getcmduserid())
-    if not es.exists('userid',userid):
-        return
-    player = playerlib.getPlayer(player.userid)
-    es.centertell(player.userid,'Noclip deactivated')
-    gusers[str(player.userid)]['crawl'] = 0
-    if not 'speed' in gusers[str(player.userid)]: 
-        gusers[str(player.userid)]['speed'] = 1.0
-    player.set("speed", float(gusers[str(player.userid)]['speed']))
-    es.server.queuecmd('es_xsetplayerprop %s "CBaseEntity.movetype" 1' % player.userid)
-    gusers[str(player.userid)]['nc_cooldown'] = int(time.time()) + 10
-    gusers[str(player.userid)]['on_ground'] = 0
-    #es.server.cmd('ezunrestrict %s #all' % player.userid)
-    gamethread.delayed(0.5,check_stuck,(player))
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
+        es.centertell(player.userid,'Noclip deactivated')
+        gusers[str(player.userid)]['crawl'] = 0
+        if not 'speed' in gusers[str(player.userid)]: 
+            gusers[str(player.userid)]['speed'] = 1.0
+        player.set("speed", float(gusers[str(player.userid)]['speed']))
+        es.server.queuecmd('es_xsetplayerprop %s "CBaseEntity.movetype" 1' % player.userid)
+        gusers[str(player.userid)]['nc_cooldown'] = int(time.time()) + 10
+        gusers[str(player.userid)]['on_ground'] = 0
+        #es.server.cmd('ezunrestrict %s #all' % player.userid)
+        gamethread.delayed(0.5,check_stuck,(player))
     
 def check_stuck(player):
     userid = str(es.getcmduserid())

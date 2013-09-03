@@ -48,7 +48,8 @@ def player_disconnect(ev):
 def selected():
     global gusers
     userid = es.getcmduserid()
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         if not superhero.hasHero(player,'Goku'):
             return
         gusers[userid] = {}
@@ -59,7 +60,8 @@ def selected():
 def power():
     global gusers
     userid = str(es.getcmduserid())
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         if gusers[userid]['LVL'] == 0:
             es.tell(userid, '#multi', '#green[SH]#lightgreen Cant release KI, you have to be at least 1 lvl')
         elif gusers[userid]['LVL'] == 1:
@@ -101,7 +103,8 @@ def KI_regen(userid):
     userid = str(userid)
     if not superhero.hasHero(userid, 'Goku'):
         return
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         gusers[userid] = {}
         gusers[userid]['GokuJump'] = 1.0
         if player.armor < 450:

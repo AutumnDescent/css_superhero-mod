@@ -77,22 +77,22 @@ def weapon_fire(ev):
         es.centertell(userid,"You are not cloaked anymore!")
     
 def check_moving(userid):
-    global gusers
-    for userid in gusers:
-        if not superhero.hasHero(userid,'Invisible Man'):
-            return
-        for player in playerlib.getPlayerList('#alive'):
-            if not 'oldpos' in gusers[userid]: gusers[userid]['oldpos'] = 0
-            newpos = es.getplayerlocation(userid)
-            oldpos = gusers[userid]['oldpos']
-            if str(newpos) == str(oldpos):
-                r,g,b,a = player.getColor() 
-                if a >= 15:
-                    a -= 15
-                invis = a
-                invis = invis * 100 / 255
-                invis = 100-invis
-                es.centertell(userid,invis,'% Cloaked')
-                player.set("color", [r, g, b, a])                       
-            gusers[userid]['oldpos'] = newpos   
-            gamethread.delayedname(INVIS_DELAY, delayname % player, check_moving, player)
+    userid = str(userid)
+    if not superhero.hasHero(userid,'Invisible Man'):
+        return
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
+        if not 'oldpos' in gusers[userid]: gusers[userid]['oldpos'] = 0
+        newpos = es.getplayerlocation(userid)
+        oldpos = gusers[userid]['oldpos']
+        if str(newpos) == str(oldpos):
+            r,g,b,a = player.getColor() 
+            if a >= 15:
+                a -= 15
+            invis = a
+            invis = invis * 100 / 255
+            invis = 100-invis
+            es.centertell(userid,invis,'% Cloaked')
+            player.set("color", [r, g, b, a])                       
+        gusers[userid]['oldpos'] = newpos   
+        gamethread.delayedname(INVIS_DELAY, delayname % player, check_moving, player)

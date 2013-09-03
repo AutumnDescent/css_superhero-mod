@@ -31,7 +31,8 @@ def power():
     userid = str(es.getcmduserid())
     if not es.exists('userid',userid):
         return
-    for player in playerlib.getPlayerList('#alive'):
+    player = playerlib.getPlayer(userid)
+    if not playerlib.getPlayer(userid).isdead:
         if int(time.time()) >= int(gusers[userid]['dazzle']):
             nearPlayers = player.getNearPlayers(750)
             counter = 0
